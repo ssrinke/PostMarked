@@ -54,9 +54,9 @@ function getMockPosition() {
   const params = new URLSearchParams(location.search);
   const mock = params.get('mock');
   if (!mock) return null;
-  const [lat, lng] = mock.split(',').map(Number);
+  const [lat, lng, accuracy] = mock.split(',').map(Number);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  return { lat, lng, timestamp: Date.now() };
+  return { lat, lng, timestamp: Date.now(), accuracy: Number.isFinite(accuracy) ? accuracy : 0 };
 }
 
 function acquirePosition() {
@@ -71,9 +71,9 @@ function acquirePosition() {
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: pos.timestamp }),
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: pos.timestamp, accuracy: pos.coords.accuracy }),
       (err) => reject(err),
-      { enableHighAccuracy: true, timeout: 10000 },
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 120000 },
     );
   });
 }
@@ -91,6 +91,12 @@ async function locate() {
 async function ensureFreshPosition() {
   if (position && Date.now() - position.timestamp < POSITION_MAX_AGE_MS) return;
   position = await acquirePosition();
+  updateApproxCaption();
+}
+
+function updateApproxCaption() {
+  const caption = document.getElementById('approxCaption');
+  caption.hidden = !(position && position.accuracy > 5000);
 }
 
 // --- Write screen ---
@@ -101,6 +107,7 @@ function enterWriteScreen() {
   document.getElementById('titleInput').value = '';
   renderCardPreview();
   updateCounter();
+  updateApproxCaption();
 }
 
 function renderCardPreview() {

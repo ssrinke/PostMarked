@@ -13,11 +13,31 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,900;1,600&family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/css/shared.css" />
 <link rel="stylesheet" href="/css/card.css" />
 </head>
 <body>
+
+<div class="desk-decor" aria-hidden="true">
+  <svg class="decor-stamp" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="6" width="88" height="108" rx="2" fill="none" stroke="#8A7B66" stroke-width="2" stroke-dasharray="5 4"/>
+    <rect x="18" y="18" width="64" height="84" fill="none" stroke="#8A7B66" stroke-width="1.5"/>
+  </svg>
+  <svg class="decor-twine" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20,60 C20,20 100,20 100,60 C100,100 20,100 20,60 Z" fill="none" stroke="#8A7B66" stroke-width="2"/>
+    <path d="M35,60 C35,35 85,35 85,60 C85,85 35,85 35,60 Z" fill="none" stroke="#8A7B66" stroke-width="1.5"/>
+  </svg>
+  <svg class="decor-chevrons" viewBox="0 0 90 30" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4,6 L14,15 L4,24" fill="none" stroke="#8A7B66" stroke-width="2"/>
+    <path d="M38,6 L48,15 L38,24" fill="none" stroke="#8A7B66" stroke-width="2"/>
+    <path d="M72,6 L82,15 L72,24" fill="none" stroke="#8A7B66" stroke-width="2"/>
+  </svg>
+  <svg class="decor-postmark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#8A7B66" stroke-width="2"/>
+    <circle cx="50" cy="50" r="36" fill="none" stroke="#8A7B66" stroke-width="1.5"/>
+  </svg>
+</div>
 
 <main class="stage" id="stage">
 
@@ -41,16 +61,32 @@
       <div class="card-wrap"></div>
       <div class="envelope">
         <div class="envelope-address">POST CARD</div>
-        <div class="tear-hint">Tear it open</div>
+        <div class="envelope-seal">
+          <div class="seal-half seal-half-left"></div>
+          <div class="seal-half seal-half-right"></div>
+          <div class="dust-puff">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
       </div>
     </div>
-    <button type="button" class="tear-open-button">Tear open</button>
+    <button type="button" class="break-seal-button">Break the seal</button>
+    <p class="stamp-hint-caption" id="stampHintCaption">tap the stamp</p>
     <div class="card-footer">
       Mailed with Postmarked — <a href="/">send one back from wherever you are.</a>
     </div>
   </div>
 
 </main>
+
+<div class="zoom-overlay" id="zoomOverlay">
+  <div class="zoom-panel" role="dialog" aria-modal="true" aria-label="Stamp and postmark detail">
+    <button type="button" class="zoom-close" id="zoomClose" aria-label="Close">✕</button>
+    <div class="zoom-stamp-wrap" id="zoomStampWrap"></div>
+    <div class="zoom-postmark-wrap" id="zoomPostmarkWrap"></div>
+    <div class="zoom-caption-lines" id="zoomCaptionLines"></div>
+  </div>
+</div>
 
 <script type="module" src="/js/card.js"></script>
 </body>

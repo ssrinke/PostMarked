@@ -16,32 +16,44 @@
 }
 
 .headline {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-weight: 800;
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
   max-width: 20ch;
-  color: var(--paper);
+  color: var(--ink);
 }
 
 .subline {
-  color: var(--paper);
-  opacity: 0.8;
+  color: var(--ink);
+  opacity: 0.75;
   max-width: 46ch;
   font-size: 14px;
   line-height: 1.5;
 }
 
+.approx-caption {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: var(--ink-soft);
+  max-width: 40ch;
+}
+
 .primary-button {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 14px;
-  letter-spacing: 0.04em;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
   padding: 14px 28px;
   min-height: 44px;
   border-radius: 4px;
   border: 1px solid var(--paper-shade);
   background: var(--paper);
   color: var(--ink);
-  transition: transform 150ms ease, opacity 150ms ease;
+  transition: transform 150ms ease, opacity 150ms ease, background 150ms ease;
+}
+
+.primary-button:hover {
+  background: var(--blush);
 }
 
 .primary-button:active {
@@ -56,7 +68,7 @@
 .link-button {
   background: none;
   border: none;
-  color: var(--paper);
+  color: var(--ink);
   text-decoration: underline;
   font-size: 13px;
   opacity: 0.75;
@@ -69,10 +81,10 @@
 .compass-rose {
   width: 72px;
   height: 72px;
-  border: 2px solid var(--paper);
+  border: 2px solid var(--ink);
   border-radius: 50%;
   position: relative;
-  opacity: 0.85;
+  opacity: 0.7;
   animation: compass-spin 2.4s linear infinite;
 }
 
@@ -115,7 +127,7 @@
 .write-title-input {
   width: 92vw;
   max-width: 630px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: 13px;
   padding: 10px 12px;
   border-radius: 3px;
@@ -131,11 +143,42 @@
 .write-card-preview {
   width: 92vw;
   max-width: 630px;
+  position: relative;
 }
 
 .write-card-preview .postcard {
   width: 100%;
   max-width: none;
+  cursor: default;
+}
+
+/* Washi tape — compose card only (§2.2) */
+.write-card-preview::before,
+.write-card-preview::after {
+  content: '';
+  position: absolute;
+  width: 90px;
+  height: 26px;
+  background: repeating-linear-gradient(
+      45deg,
+      rgb(233 185 162 / 0.55) 0 6px,
+      rgb(233 185 162 / 0.4) 6px 12px
+    );
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+}
+
+.write-card-preview::before {
+  top: -10px;
+  left: 6%;
+  transform: rotate(-8deg);
+}
+
+.write-card-preview::after {
+  bottom: -10px;
+  right: 6%;
+  transform: rotate(-8deg);
 }
 
 .char-counter {
@@ -168,7 +211,7 @@
 /* Confirm screen */
 
 .confirm-lines {
-  color: var(--paper);
+  color: var(--ink);
   max-width: 46ch;
 }
 
@@ -221,14 +264,15 @@
 }
 
 .drawer-item {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--paper);
+  border: 1px solid var(--paper-shade);
   border-radius: 6px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: var(--paper);
+  color: var(--ink);
 }
 
 .drawer-item-info {

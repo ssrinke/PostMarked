@@ -31,18 +31,12 @@ function buildFront(payload) {
   front.appendChild(renderFrontSVG(payload));
 
   const lockup = h('div', { className: 'front-lockup' });
-  const pl = payload.pl || '';
-  if (payload.ti) {
-    lockup.appendChild(text('div', 'front-headline', payload.ti));
-    lockup.appendChild(text('div', 'front-place', payload.co ? `${pl}, ${payload.co}` : pl));
-  } else {
-    lockup.appendChild(text('div', 'front-headline', pl));
-    if (payload.co) lockup.appendChild(text('div', 'front-place', payload.co));
-  }
-  lockup.appendChild(text('div', 'front-coords', formatCoords(payload.lat, payload.lng)));
+  const headline = payload.ti || payload.pl || '';
+  lockup.appendChild(text('div', 'front-headline', headline));
+  const co = payload.co ? `${payload.co} · ` : '';
+  lockup.appendChild(text('div', 'front-coords', `${co}${formatCoords(payload.lat, payload.lng)}`));
   front.appendChild(lockup);
 
-  front.appendChild(text('div', 'front-flip-hint', 'Turn it over'));
   return front;
 }
 
@@ -82,6 +76,16 @@ function buildBack(payload, { editable = false, onMessageInput, onSignatureInput
     right.appendChild(postmarkWrap);
   }
 
+  if (!editable) {
+    const hit = h('div', {
+      className: 'stamp-cluster-hit',
+      role: 'button',
+      tabindex: '0',
+      'aria-label': 'Inspect the stamp and postmark',
+    });
+    right.appendChild(hit);
+  }
+
   back.appendChild(right);
   return back;
 }
@@ -96,10 +100,16 @@ export function buildCardElement(payload, options = {}) {
   inner.appendChild(back);
   card.appendChild(inner);
 
+  let pill = null;
+
   function flip() {
     card.classList.toggle('is-flipped');
-    front.classList.add('flip-hint-seen');
+    const flipped = card.classList.contains('is-flipped');
+    if (pill) pill.textContent = flipped ? '↻ Turn it back' : '↻ Turn it over';
+    if (typeof options.onFlip === 'function') options.onFlip(flipped);
   }
+
+  let root = card;
 
   if (!options.editable) {
     const activate = (e) => {
@@ -112,7 +122,19 @@ export function buildCardElement(payload, options = {}) {
     card.setAttribute('aria-label', 'Flip postcard');
     card.addEventListener('click', activate);
     card.addEventListener('keydown', activate);
+
+    pill = h('button', { type: 'button', className: 'flip-pill' });
+    pill.textContent = '↻ Turn it over';
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      flip();
+    });
+
+    const wrapper = h('div', { className: 'postcard-wrapper' });
+    wrapper.appendChild(card);
+    wrapper.appendChild(pill);
+    root = wrapper;
   }
 
-  return { card, front, back, flip };
+  return { card, front, back, flip, pill, root };
 }

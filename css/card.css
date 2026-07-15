@@ -35,17 +35,18 @@
   gap: 12px;
   padding: 32px;
   text-align: center;
+  background: var(--paper);
 }
 
 .damaged-headline {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-weight: 800;
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
   font-size: clamp(18px, 3vw, 26px);
-  color: var(--paper);
+  color: var(--ink);
 }
 
 .damaged-body {
-  color: var(--paper);
+  color: var(--ink);
   opacity: 0.8;
   font-size: 14px;
   max-width: 44ch;
@@ -60,7 +61,7 @@
   background: var(--paper);
   border-radius: 3px;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,7 +80,7 @@
   left: 50%;
   width: 40%;
   transform: translate(-50%, -50%);
-  opacity: 0.12;
+  opacity: 0.15;
 }
 
 .transit-postmark-ghost svg {
@@ -92,20 +93,20 @@
   top: 10%;
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--ink-soft);
 }
 
 .transit-line {
-  color: var(--paper);
+  color: var(--ink);
   text-align: center;
   font-size: 14px;
   max-width: 46ch;
 }
 
-/* Arrival + tear ritual */
+/* Arrival + tear ritual v2 (§4) */
 
 .envelope-scene {
   width: 92vw;
@@ -120,23 +121,21 @@
   z-index: 2;
   background: var(--paper);
   border-radius: 3px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
   touch-action: pan-y;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  transition: clip-path 500ms cubic-bezier(0.4, 0.2, 0.2, 1), opacity 500ms ease, transform 500ms ease;
+  overflow: hidden;
 }
 
-.envelope::after {
+.envelope::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 45%, rgba(0, 0, 0, 0.05) 50%, transparent 55%);
-  pointer-events: none;
-}
-
-.envelope.is-torn {
-  opacity: 0;
-  transform: scale(0.96);
+  background:
+    linear-gradient(135deg, transparent 45%, rgba(0, 0, 0, 0.04) 50%, transparent 55%),
+    repeating-linear-gradient(-45deg, var(--airmail-red) 0 10px, transparent 10px 16px, var(--airmail-blue) 16px 26px, transparent 26px 32px);
+  -webkit-mask-image: linear-gradient(to bottom, black 0 6px, transparent 6px 12px);
+  mask-image: linear-gradient(to bottom, black 0 6px, transparent 6px 12px);
+  opacity: 0.5;
 }
 
 .envelope-address {
@@ -144,44 +143,125 @@
   top: 12%;
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: 12px;
   letter-spacing: 0.14em;
   color: var(--ink-soft);
 }
 
-.tear-hint {
+/* Wax seal */
+.envelope-seal {
   position: absolute;
-  bottom: 10%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  pointer-events: none;
-  transition: opacity 300ms ease;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c14e3a, var(--seal) 70%);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 250ms ease, opacity 250ms ease;
 }
 
-.tear-open-button {
-  margin-top: 8px;
-  padding: 10px 18px;
-  border-radius: 3px;
-  border: 1px solid var(--paper-shade);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  min-height: 44px;
+.envelope-seal::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgb(255 251 240 / 0.55);
+  clip-path: polygon(0 0, 50% 30%, 100% 0, 100% 100%, 50% 70%, 0 100%);
+}
+
+.envelope-seal .seal-half {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  transition: transform 250ms ease, opacity 250ms ease;
+}
+
+.envelope.is-cracking .envelope-seal .seal-half-left {
+  transform: translate(-10px, -6px) rotate(-18deg);
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+}
+
+.envelope.is-cracking .envelope-seal .seal-half-right {
+  transform: translate(10px, -6px) rotate(18deg);
+  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+}
+
+.dust-puff {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dust-puff span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-soft);
   opacity: 0;
-  transition: opacity 300ms ease;
-  pointer-events: none;
 }
 
-.tear-open-button.is-visible {
-  opacity: 1;
-  pointer-events: auto;
+.envelope.is-cracking .dust-puff span {
+  animation: dust-fly 250ms ease-out forwards;
+}
+
+.envelope.is-cracking .dust-puff span:nth-child(1) { --dx: -18px; --dy: -14px; }
+.envelope.is-cracking .dust-puff span:nth-child(2) { --dx: 16px; --dy: -18px; }
+.envelope.is-cracking .dust-puff span:nth-child(3) { --dx: -12px; --dy: 14px; }
+.envelope.is-cracking .dust-puff span:nth-child(4) { --dx: 20px; --dy: 10px; }
+.envelope.is-cracking .dust-puff span:nth-child(5) { --dx: 0px; --dy: -20px; }
+.envelope.is-cracking .dust-puff span:nth-child(6) { --dx: 4px; --dy: 20px; }
+
+@keyframes dust-fly {
+  0% { opacity: 0.8; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.4); }
+}
+
+.envelope.is-tearing {
+  transition: clip-path 400ms cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.envelope.is-tearing .envelope-seal {
+  opacity: 0;
+}
+
+.envelope.is-torn {
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+  transition: opacity 450ms ease, transform 450ms ease;
+}
+
+.break-seal-button {
+  margin-top: 8px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  border: none;
+  background: var(--seal);
+  color: var(--paper);
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  min-height: 44px;
+  transition: opacity 300ms ease, transform 150ms ease;
+}
+
+.break-seal-button:active {
+  transform: scale(0.97);
+}
+
+.break-seal-button.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .card-wrap {
@@ -191,14 +271,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.card-wrap.is-visible {
+  opacity: 1;
 }
 
 .card-wrap.is-settling .postcard {
-  animation: card-settle 500ms cubic-bezier(0.2, 0.6, 0.3, 1) both;
+  animation: card-settle 450ms cubic-bezier(0.2, 0.6, 0.3, 1) both;
 }
 
 @keyframes card-settle {
-  from { transform: translateY(14px) scale(1.02); }
+  from { transform: translateY(40px) scale(0.94); }
   to { transform: translateY(0) scale(1); }
 }
 
@@ -206,7 +292,7 @@
   text-align: center;
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--paper);
+  color: var(--ink);
   opacity: 0.75;
 }
 
@@ -214,8 +300,162 @@
   text-decoration: underline;
 }
 
+/* Flip pill button (§3) */
+
+.flip-pill {
+  margin-top: 4px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+
+/* Corner-peel idle nudge (§3) */
+
+@keyframes corner-peel {
+  0%, 18%, 100% { transform: rotate(0deg) translate(0, 0); }
+  9% { transform: rotate(-6deg) translate(-2px, -3px); }
+}
+
+.postcard.peel-nudge::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 34px;
+  height: 34px;
+  background: var(--paper);
+  box-shadow: -4px -4px 10px rgb(90 70 40 / 0.3);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  transform-origin: bottom right;
+  animation: corner-peel 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard.peel-nudge::after {
+    animation: none;
+  }
+}
+
+/* Stamp tap-to-zoom (§6) */
+
+.stamp-cluster-hit {
+  position: absolute;
+  top: 14%;
+  right: 1%;
+  width: 60%;
+  height: 66%;
+  z-index: 2;
+}
+
+@keyframes stamp-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(58 49 40 / 0); }
+  50% { box-shadow: 0 0 0 8px rgb(58 49 40 / 0.15); }
+}
+
+.stamp-cluster-hit.stamp-pulse {
+  animation: stamp-pulse 700ms ease-in-out 2;
+}
+
+.stamp-hint-caption {
+  text-align: center;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  text-transform: lowercase;
+  color: var(--ink-soft);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.stamp-hint-caption.is-visible {
+  opacity: 1;
+}
+
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgb(58 49 40 / 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  padding: 24px;
+}
+
+.zoom-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.zoom-panel {
+  position: relative;
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 32px 24px 24px;
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.35);
+}
+
+.zoom-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  font-size: 20px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.zoom-stamp-wrap,
+.zoom-postmark-wrap {
+  width: 60%;
+  max-width: 220px;
+}
+
+.zoom-stamp-wrap svg,
+.zoom-postmark-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.zoom-caption-lines {
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ink);
+  text-align: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card-wrap.is-settling .postcard {
     animation: none;
+  }
+  .envelope,
+  .envelope-seal,
+  .envelope-seal .seal-half,
+  .envelope.is-torn {
+    transition: opacity 300ms ease;
   }
 }

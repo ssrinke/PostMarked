@@ -1,15 +1,18 @@
 /* Design tokens (§9.1) and shared postcard construction (§9.3), used by both pages. */
 
 :root {
-  --desk-a: #1f2a33;
-  --desk-b: #141c23;
-  --paper: #f6f1e5;
-  --paper-shade: #e9e2d2;
-  --ink: #28303f;
-  --ink-soft: #5a6070;
-  --cancel: #3e3a34;
-  --airmail-red: #c2452d;
-  --airmail-blue: #2e5e8c;
+  --desk: #F0E4CE;
+  --desk-edge: #E4D4B8;
+  --paper: #FFFBF0;
+  --paper-shade: #EFE6D3;
+  --ink: #3A3128;
+  --ink-soft: #8A7B66;
+  --cancel: #2B2622;
+  --airmail-red: #C2452D;
+  --airmail-blue: #2E5E8C;
+  --blush: #E9B9A2;
+  --seal: #A3372B;
+  --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
 }
 
 * {
@@ -24,17 +27,42 @@ body {
 }
 
 body {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  color: var(--paper);
+  font-family: 'Courier Prime', ui-monospace, monospace;
+  color: var(--ink);
+  position: relative;
   background:
-    radial-gradient(ellipse at 50% 30%, var(--desk-a) 0%, var(--desk-b) 70%),
-    radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 60%);
-  background-color: var(--desk-b);
+    radial-gradient(ellipse at 50% 40%, var(--desk) 0%, var(--desk-edge) 100%);
+  background-color: var(--desk);
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--desk-grain);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(58 49 40 / 0.08) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main,
+.stage {
+  position: relative;
+  z-index: 1;
 }
 
 button {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: 'Courier Prime', ui-monospace, monospace;
   cursor: pointer;
 }
 
@@ -56,7 +84,66 @@ a {
   white-space: nowrap;
 }
 
+/* Desk scene decoration (§2.2) */
+
+.desk-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+}
+
+.desk-decor svg {
+  position: absolute;
+  display: block;
+}
+
+.decor-stamp {
+  top: 4%;
+  left: 3%;
+  width: 110px;
+  height: 132px;
+}
+
+.decor-twine {
+  bottom: 4%;
+  right: 4%;
+  width: 130px;
+  height: 130px;
+}
+
+.decor-chevrons {
+  top: 6%;
+  right: 6%;
+  width: 90px;
+  height: 30px;
+}
+
+.decor-postmark {
+  bottom: 6%;
+  left: 5%;
+  width: 100px;
+  height: 100px;
+}
+
+@media (max-width: 480px) {
+  .decor-twine,
+  .decor-chevrons,
+  .decor-postmark {
+    display: none;
+  }
+}
+
 /* Postcard construction (§9.3) */
+
+.postcard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
 
 .postcard {
   position: relative;
@@ -64,11 +151,9 @@ a {
   max-width: 630px;
   aspect-ratio: 3 / 2;
   border-radius: 3px;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.25),
-    0 10px 24px rgba(0, 0, 0, 0.35),
-    0 24px 48px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
   perspective: 1400px;
+  cursor: pointer;
 }
 
 .postcard-inner {
@@ -120,47 +205,29 @@ a {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 2px 12px rgba(0, 0, 0, 0.25);
 }
 
+.front-lockup {
+  background: rgb(255 251 240 / 0.82);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--ink);
+  text-shadow: none;
+}
+
 .front-headline {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-weight: 800;
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
   text-transform: uppercase;
   font-size: clamp(20px, 4.2vw, 40px);
   line-height: 1.05;
 }
 
-.front-place {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
 .front-coords {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: 10px;
   letter-spacing: 0.08em;
   opacity: 0.85;
   margin-top: 2px;
-}
-
-.front-flip-hint {
-  position: absolute;
-  right: 5%;
-  top: 5%;
-  font-size: 10px;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--paper);
-  background: rgba(0, 0, 0, 0.35);
-  padding: 4px 8px;
-  border-radius: 2px;
-  transition: opacity 400ms ease;
-}
-
-.front-flip-hint.flip-hint-seen {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .postcard-back {
@@ -189,9 +256,9 @@ a {
 .back-message,
 .back-message-input {
   font-family: 'Caveat', cursive;
-  font-weight: 500;
-  font-size: clamp(16px, 2.6vw, 22px);
-  line-height: 1.45;
+  font-weight: 600;
+  font-size: clamp(16px, 2.6vw, 24px);
+  line-height: 1.5;
   color: var(--ink);
   white-space: pre-wrap;
   transform: rotate(-0.4deg);
@@ -209,8 +276,8 @@ a {
 .back-signature,
 .back-signature-input {
   font-family: 'Caveat', cursive;
-  font-weight: 600;
-  font-size: clamp(16px, 2.8vw, 24px);
+  font-weight: 700;
+  font-size: clamp(16px, 3vw, 28px);
   color: var(--ink);
   border: none;
   background: transparent;
@@ -230,7 +297,7 @@ a {
 }
 
 .back-heading {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: clamp(9px, 1.4vw, 12px);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -253,24 +320,24 @@ a {
 }
 
 .stamp-place {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: 5px;
   letter-spacing: 0.08em;
   fill: var(--ink-soft);
 }
 
 .stamp-corner {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   font-size: 5px;
   fill: var(--ink-soft);
 }
 
 .back-postmark {
   position: absolute;
-  top: 33%;
-  right: 2%;
-  width: 44%;
-  max-width: 165px;
+  top: 31%;
+  right: 1%;
+  width: 50%;
+  max-width: 185px;
 }
 
 .back-postmark svg {
@@ -283,23 +350,23 @@ a {
 .postmark-date,
 .postmark-time,
 .postmark-weather {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Courier Prime', monospace;
   fill: var(--cancel);
 }
 
 .postmark-arc-text {
-  font-size: 6px;
+  font-size: 6.5px;
   letter-spacing: 0.06em;
 }
 
 .postmark-date {
-  font-size: 8px;
-  font-weight: 500;
+  font-size: 9.5px;
+  font-weight: 700;
 }
 
 .postmark-time,
 .postmark-weather {
-  font-size: 5.5px;
+  font-size: 6.5px;
 }
 
 @media (prefers-reduced-motion: reduce) {
