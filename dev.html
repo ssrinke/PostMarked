@@ -6,8 +6,9 @@
 <meta name="description" content="Postmarked development harness — not linked from any page." />
 <title>Postmarked — dev harness</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,900;1,600&family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/css/shared.css" />
+<link rel="stylesheet" href="/css/card.css" />
 <style>
   body { padding: 24px; display: flex; flex-direction: column; gap: 24px; align-items: center; }
   .dev-panel { width: 100%; max-width: 900px; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 16px 20px; }
@@ -43,7 +44,8 @@
   <div class="dev-actions">
     <button type="button" id="renderBtn">Render card</button>
     <button type="button" id="transitBtn">Preview: in transit</button>
-    <button type="button" id="tearBtn">Preview: tear ritual</button>
+    <button type="button" id="tearBtn">Preview: seal crack + tear</button>
+    <button type="button" id="zoomBtn">Preview: zoom overlay</button>
     <button type="button" id="damagedBtn">Preview: damaged</button>
     <button type="button" id="compareBtn">Determinism check (console)</button>
   </div>
@@ -52,8 +54,19 @@
 <div class="dev-stage" id="stage"></div>
 <div class="dev-state-label" id="stateLabel"></div>
 
+<div class="zoom-overlay" id="zoomOverlay">
+  <div class="zoom-panel" role="dialog" aria-modal="true" aria-label="Stamp and postmark detail">
+    <button type="button" class="zoom-close" id="zoomClose" aria-label="Close">✕</button>
+    <div class="zoom-stamp-wrap" id="zoomStampWrap"></div>
+    <div class="zoom-postmark-wrap" id="zoomPostmarkWrap"></div>
+    <div class="zoom-caption-lines" id="zoomCaptionLines"></div>
+  </div>
+</div>
+
 <script type="module">
 import { buildCardElement } from '/js/render-card.js';
+import { renderStampSVG } from '/js/stamp.js';
+import { renderPostmarkSVG, weatherWord } from '/js/postmark.js';
 
 const stage = document.getElementById('stage');
 const stateLabel = document.getElementById('stateLabel');
@@ -87,8 +100,8 @@ function renderCard() {
   stage.innerHTML = '';
   stateLabel.textContent = 'card';
   const payload = payloadFromForm();
-  const { card } = buildCardElement(payload, { editable: false });
-  stage.appendChild(card);
+  const { root } = buildCardElement(payload, { editable: false });
+  stage.appendChild(root);
 }
 
 function renderTransit() {
@@ -96,23 +109,80 @@ function renderTransit() {
   stateLabel.textContent = 'in-transit (preview only, see card.js for real markup)';
   const payload = payloadFromForm();
   const div = document.createElement('div');
-  div.style.color = '#f6f1e5';
-  div.style.fontFamily = 'IBM Plex Mono, monospace';
+  div.style.color = 'var(--ink)';
+  div.style.fontFamily = 'Courier Prime, monospace';
   div.textContent = `Mailed from ${payload.pl}${payload.co ? ', ' + payload.co : ''} on ${payload.d} · arriving ${new Date(payload.nb).toDateString()}`;
   stage.appendChild(div);
 }
 
 function renderTear() {
   stage.innerHTML = '';
-  stateLabel.textContent = 'tear ritual preview — open card.html for the real interaction';
-  renderCard();
+  stateLabel.textContent = 'seal crack → tear → slide (1100ms scripted sequence)';
+  const scene = document.createElement('div');
+  scene.className = 'envelope-scene';
+  scene.style.maxWidth = '480px';
+  scene.innerHTML = `
+    <div class="card-wrap"></div>
+    <div class="envelope">
+      <div class="envelope-address">POST CARD</div>
+      <div class="envelope-seal">
+        <div class="seal-half seal-half-left"></div>
+        <div class="seal-half seal-half-right"></div>
+        <div class="dust-puff"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>`;
+  stage.appendChild(scene);
+
+  const payload = payloadFromForm();
+  const cardWrap = scene.querySelector('.card-wrap');
+  const { root } = buildCardElement(payload, { editable: false });
+  cardWrap.appendChild(root);
+
+  const envelope = scene.querySelector('.envelope');
+  envelope.classList.add('is-cracking');
+  setTimeout(() => {
+    envelope.classList.add('is-tearing');
+    envelope.style.clipPath = 'polygon(0% 24%, 10% 34%, 20% 22%, 30% 31%, 40% 26%, 50% 33%, 60% 21%, 70% 30%, 80% 24%, 90% 33%, 100% 27%, 100% 100%, 0% 100%)';
+    setTimeout(() => {
+      envelope.classList.add('is-torn');
+      cardWrap.classList.add('is-visible');
+      cardWrap.classList.add('is-settling');
+    }, 400);
+  }, 250);
+}
+
+function renderZoomPreview() {
+  const payload = payloadFromForm();
+  const overlay = document.getElementById('zoomOverlay');
+  const stampWrap = document.getElementById('zoomStampWrap');
+  const postmarkWrap = document.getElementById('zoomPostmarkWrap');
+  const captionLines = document.getElementById('zoomCaptionLines');
+  stampWrap.innerHTML = '';
+  stampWrap.appendChild(renderStampSVG(payload));
+  postmarkWrap.innerHTML = '';
+  if (payload.d && payload.t) postmarkWrap.appendChild(renderPostmarkSVG(payload));
+  const place = payload.co ? `${payload.pl}, ${payload.co}` : payload.pl;
+  const lines = [`MAILED FROM ${place}`.toUpperCase()];
+  if (payload.d) lines.push(new Date(payload.d).toDateString());
+  if (payload.t) lines.push(`${payload.t} LOCAL TIME`);
+  if (payload.wt !== undefined) {
+    const word = weatherWord(payload.wc);
+    lines.push(word ? `${payload.wt}°C · ${word}` : `${payload.wt}°C`);
+  }
+  captionLines.innerHTML = '';
+  for (const line of lines) {
+    const div = document.createElement('div');
+    div.textContent = line;
+    captionLines.appendChild(div);
+  }
+  overlay.classList.add('is-open');
 }
 
 function renderDamaged() {
   stage.innerHTML = '';
   stateLabel.textContent = 'damaged';
   const div = document.createElement('div');
-  div.style.color = '#f6f1e5';
+  div.style.color = 'var(--ink)';
   div.textContent = "This one got damaged in the mail.";
   stage.appendChild(div);
 }
@@ -120,7 +190,11 @@ function renderDamaged() {
 document.getElementById('renderBtn').addEventListener('click', renderCard);
 document.getElementById('transitBtn').addEventListener('click', renderTransit);
 document.getElementById('tearBtn').addEventListener('click', renderTear);
+document.getElementById('zoomBtn').addEventListener('click', renderZoomPreview);
 document.getElementById('damagedBtn').addEventListener('click', renderDamaged);
+document.getElementById('zoomClose').addEventListener('click', () => {
+  document.getElementById('zoomOverlay').classList.remove('is-open');
+});
 document.getElementById('compareBtn').addEventListener('click', () => {
   const payload = payloadFromForm();
   const a = buildCardElement(payload, { editable: false }).card.outerHTML;

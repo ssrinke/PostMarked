@@ -43,7 +43,7 @@ function arcPath(cx, cy, r, startDeg, endDeg) {
 
 export function renderPostmarkSVG(payload) {
   const seed = deriveSeed(payload.lat, payload.lng);
-  const stroke = 'rgba(62,58,52,0.78)';
+  const stroke = 'rgba(43,38,34,0.95)';
   const width = 150;
   const height = 130;
   const cx = 55;
@@ -69,8 +69,8 @@ export function renderPostmarkSVG(payload) {
     filter: `url(#${filterId})`,
   });
 
-  g.appendChild(el('circle', { cx, cy, r: 46, fill: 'none', stroke, 'stroke-width': 1.4 }));
-  g.appendChild(el('circle', { cx, cy, r: 38, fill: 'none', stroke, 'stroke-width': 1.2 }));
+  g.appendChild(el('circle', { cx, cy, r: 52, fill: 'none', stroke, 'stroke-width': 2.1 }));
+  g.appendChild(el('circle', { cx, cy, r: 43, fill: 'none', stroke, 'stroke-width': 1.8 }));
 
   const arcText = el('text', { class: 'postmark-arc-text', 'text-anchor': 'middle' });
   const textPath = el('textPath', { href: `#${arcId}`, 'xlink:href': `#${arcId}`, startOffset: '50%' });
@@ -100,7 +100,7 @@ export function renderPostmarkSVG(payload) {
     const x1 = cx + 48;
     const x2 = cx + 70;
     const d = `M${x1},${y} Q${(x1 + x2) / 2},${y - 6} ${x2},${y}`;
-    g.appendChild(el('path', { d, fill: 'none', stroke, 'stroke-width': 1.4 }));
+    g.appendChild(el('path', { d, fill: 'none', stroke, 'stroke-width': 2.1 }));
   }
 
   svg.appendChild(g);
