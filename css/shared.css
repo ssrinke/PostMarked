@@ -1,0 +1,323 @@
+/* Design tokens (§9.1) and shared postcard construction (§9.3), used by both pages. */
+
+:root {
+  --desk-a: #1f2a33;
+  --desk-b: #141c23;
+  --paper: #f6f1e5;
+  --paper-shade: #e9e2d2;
+  --ink: #28303f;
+  --ink-soft: #5a6070;
+  --cancel: #3e3a34;
+  --airmail-red: #c2452d;
+  --airmail-blue: #2e5e8c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  color: var(--paper);
+  background:
+    radial-gradient(ellipse at 50% 30%, var(--desk-a) 0%, var(--desk-b) 70%),
+    radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 60%);
+  background-color: var(--desk-b);
+  min-height: 100vh;
+}
+
+button {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px dashed var(--airmail-blue);
+  outline-offset: 4px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Postcard construction (§9.3) */
+
+.postcard {
+  position: relative;
+  width: 92vw;
+  max-width: 630px;
+  aspect-ratio: 3 / 2;
+  border-radius: 3px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 10px 24px rgba(0, 0, 0, 0.35),
+    0 24px 48px rgba(0, 0, 0, 0.3);
+  perspective: 1400px;
+}
+
+.postcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 650ms cubic-bezier(0.4, 0.2, 0.2, 1), box-shadow 650ms ease;
+  transform-style: preserve-3d;
+}
+
+.postcard.is-flipped .postcard-inner {
+  transform: rotateY(180deg);
+}
+
+.postcard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--paper-shade);
+}
+
+.postcard-front {
+  display: flex;
+}
+
+.front-svg,
+.front-svg > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.postcard-front svg.front-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.front-lockup {
+  position: absolute;
+  left: 6%;
+  bottom: 7%;
+  max-width: 60%;
+  color: var(--paper);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.front-headline {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(20px, 4.2vw, 40px);
+  line-height: 1.05;
+}
+
+.front-place {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.front-coords {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.front-flip-hint {
+  position: absolute;
+  right: 5%;
+  top: 5%;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px 8px;
+  border-radius: 2px;
+  transition: opacity 400ms ease;
+}
+
+.front-flip-hint.flip-hint-seen {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.postcard-back {
+  transform: rotateY(180deg);
+  display: grid;
+  grid-template-columns: 55% 1px 45%;
+  background: var(--paper);
+  border: 1px solid transparent;
+  border-image: repeating-linear-gradient(
+      -45deg,
+      var(--airmail-red) 0 14px,
+      var(--paper) 14px 20px,
+      var(--airmail-blue) 20px 34px,
+      var(--paper) 34px 40px
+    )
+    10;
+}
+
+.back-left {
+  padding: 6% 5%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.back-message,
+.back-message-input {
+  font-family: 'Caveat', cursive;
+  font-weight: 500;
+  font-size: clamp(16px, 2.6vw, 22px);
+  line-height: 1.45;
+  color: var(--ink);
+  white-space: pre-wrap;
+  transform: rotate(-0.4deg);
+  flex: 1;
+}
+
+.back-message-input {
+  resize: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+}
+
+.back-signature,
+.back-signature-input {
+  font-family: 'Caveat', cursive;
+  font-weight: 600;
+  font-size: clamp(16px, 2.8vw, 24px);
+  color: var(--ink);
+  border: none;
+  background: transparent;
+  outline: none;
+  margin-top: 8px;
+}
+
+.back-rule {
+  background: var(--paper-shade);
+}
+
+.back-right {
+  position: relative;
+  padding: 5%;
+  display: flex;
+  flex-direction: column;
+}
+
+.back-heading {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(9px, 1.4vw, 12px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.back-stamp {
+  position: absolute;
+  top: 16%;
+  right: 5%;
+  width: 30%;
+  max-width: 110px;
+}
+
+.back-stamp svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+.stamp-place {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 5px;
+  letter-spacing: 0.08em;
+  fill: var(--ink-soft);
+}
+
+.stamp-corner {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 5px;
+  fill: var(--ink-soft);
+}
+
+.back-postmark {
+  position: absolute;
+  top: 33%;
+  right: 2%;
+  width: 44%;
+  max-width: 165px;
+}
+
+.back-postmark svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.postmark-arc-text,
+.postmark-date,
+.postmark-time,
+.postmark-weather {
+  font-family: 'IBM Plex Mono', monospace;
+  fill: var(--cancel);
+}
+
+.postmark-arc-text {
+  font-size: 6px;
+  letter-spacing: 0.06em;
+}
+
+.postmark-date {
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.postmark-time,
+.postmark-weather {
+  font-size: 5.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard-inner {
+    transition: opacity 300ms ease;
+  }
+  .postcard.is-flipped .postcard-inner {
+    transform: none;
+  }
+  .postcard-front,
+  .postcard-back {
+    transition: opacity 300ms ease;
+    transform: none;
+    backface-visibility: visible;
+  }
+  .postcard:not(.is-flipped) .postcard-back,
+  .postcard.is-flipped .postcard-front {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

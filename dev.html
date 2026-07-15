@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Postmarked development harness — not linked from any page." />
+<title>Postmarked — dev harness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/shared.css" />
+<style>
+  body { padding: 24px; display: flex; flex-direction: column; gap: 24px; align-items: center; }
+  .dev-panel { width: 100%; max-width: 900px; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 16px 20px; }
+  .dev-panel h1 { font-size: 16px; margin: 0 0 12px; }
+  .dev-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .dev-form label { display: flex; flex-direction: column; font-size: 11px; letter-spacing: 0.04em; gap: 4px; }
+  .dev-form input, .dev-form textarea { font-family: inherit; padding: 6px; border-radius: 3px; border: 1px solid var(--paper-shade); }
+  .dev-form textarea { grid-column: 1 / -1; min-height: 60px; }
+  .dev-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .dev-actions button { padding: 8px 14px; border-radius: 3px; border: 1px solid var(--paper-shade); background: var(--paper); }
+  .dev-stage { display: flex; justify-content: center; padding: 40px 0; }
+  .dev-state-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<div class="dev-panel">
+  <h1>Postmarked — dev harness (unlinked)</h1>
+  <form class="dev-form" id="devForm">
+    <label>Lat <input name="lat" type="number" step="0.01" value="38.71" /></label>
+    <label>Lng <input name="lng" type="number" step="0.01" value="-9.14" /></label>
+    <label>Title <input name="ti" type="text" maxlength="40" value="Greetings from the hill" /></label>
+    <label>Sender <input name="s" type="text" maxlength="40" value="Sanjana" /></label>
+    <label>Weather code <input name="wc" type="number" value="0" /></label>
+    <label>Temp °C <input name="wt" type="number" value="34" /></label>
+    <label>Place <input name="pl" type="text" value="Lisbon" /></label>
+    <label>Country <input name="co" type="text" value="Portugal" /></label>
+    <label>Date <input name="d" type="date" value="2026-07-14" /></label>
+    <label>Time <input name="t" type="text" value="18:42" /></label>
+    <label>Arrival offset (days) <input name="offset" type="number" value="3" /></label>
+    <textarea name="m" maxlength="300">Wish you were here — the light this evening is unreal.</textarea>
+  </form>
+  <div class="dev-actions">
+    <button type="button" id="renderBtn">Render card</button>
+    <button type="button" id="transitBtn">Preview: in transit</button>
+    <button type="button" id="tearBtn">Preview: tear ritual</button>
+    <button type="button" id="damagedBtn">Preview: damaged</button>
+    <button type="button" id="compareBtn">Determinism check (console)</button>
+  </div>
+</div>
+
+<div class="dev-stage" id="stage"></div>
+<div class="dev-state-label" id="stateLabel"></div>
+
+<script type="module">
+import { buildCardElement } from '/js/render-card.js';
+
+const stage = document.getElementById('stage');
+const stateLabel = document.getElementById('stateLabel');
+const form = document.getElementById('devForm');
+
+function payloadFromForm() {
+  const fd = new FormData(form);
+  const payload = {
+    v: 1,
+    m: fd.get('m'),
+    s: fd.get('s'),
+    lat: parseFloat(fd.get('lat')),
+    lng: parseFloat(fd.get('lng')),
+    pl: fd.get('pl'),
+    co: fd.get('co'),
+    d: fd.get('d'),
+    t: fd.get('t'),
+    nb: Date.now() + parseInt(fd.get('offset'), 10) * 86400000,
+  };
+  const ti = fd.get('ti');
+  if (ti) payload.ti = ti;
+  const wt = fd.get('wt');
+  if (wt !== '') {
+    payload.wt = parseInt(wt, 10);
+    payload.wc = parseInt(fd.get('wc'), 10);
+  }
+  return payload;
+}
+
+function renderCard() {
+  stage.innerHTML = '';
+  stateLabel.textContent = 'card';
+  const payload = payloadFromForm();
+  const { card } = buildCardElement(payload, { editable: false });
+  stage.appendChild(card);
+}
+
+function renderTransit() {
+  stage.innerHTML = '';
+  stateLabel.textContent = 'in-transit (preview only, see card.js for real markup)';
+  const payload = payloadFromForm();
+  const div = document.createElement('div');
+  div.style.color = '#f6f1e5';
+  div.style.fontFamily = 'IBM Plex Mono, monospace';
+  div.textContent = `Mailed from ${payload.pl}${payload.co ? ', ' + payload.co : ''} on ${payload.d} · arriving ${new Date(payload.nb).toDateString()}`;
+  stage.appendChild(div);
+}
+
+function renderTear() {
+  stage.innerHTML = '';
+  stateLabel.textContent = 'tear ritual preview — open card.html for the real interaction';
+  renderCard();
+}
+
+function renderDamaged() {
+  stage.innerHTML = '';
+  stateLabel.textContent = 'damaged';
+  const div = document.createElement('div');
+  div.style.color = '#f6f1e5';
+  div.textContent = "This one got damaged in the mail.";
+  stage.appendChild(div);
+}
+
+document.getElementById('renderBtn').addEventListener('click', renderCard);
+document.getElementById('transitBtn').addEventListener('click', renderTransit);
+document.getElementById('tearBtn').addEventListener('click', renderTear);
+document.getElementById('damagedBtn').addEventListener('click', renderDamaged);
+document.getElementById('compareBtn').addEventListener('click', () => {
+  const payload = payloadFromForm();
+  const a = buildCardElement(payload, { editable: false }).card.outerHTML;
+  const b = buildCardElement(payload, { editable: false }).card.outerHTML;
+  console.log('Determinism check:', a === b ? 'PASS — identical markup' : 'FAIL — markup differs');
+});
+
+renderCard();
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Someone mailed you a postcard from somewhere real." />
+<title>You've got a postcard</title>
+
+<meta property="og:title" content="You've got a postcard" />
+<meta property="og:description" content="Someone mailed you a postcard from somewhere real." />
+<meta property="og:image" content="/og.png" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/shared.css" />
+<link rel="stylesheet" href="/css/card.css" />
+</head>
+<body>
+
+<main class="stage" id="stage">
+
+  <div class="state" id="state-damaged">
+    <div class="damaged-card">
+      <div class="damaged-headline">This one got damaged in the mail.</div>
+      <div class="damaged-body">The postcard in this link isn't intact, so it can't be shown. Ask the sender for a fresh link.</div>
+    </div>
+  </div>
+
+  <div class="state" id="state-transit">
+    <div class="transit-envelope">
+      <div class="transit-label">POST CARD</div>
+      <div class="transit-postmark-ghost"></div>
+    </div>
+    <div class="transit-line"></div>
+  </div>
+
+  <div class="state" id="state-arrival">
+    <div class="envelope-scene">
+      <div class="card-wrap"></div>
+      <div class="envelope">
+        <div class="envelope-address">POST CARD</div>
+        <div class="tear-hint">Tear it open</div>
+      </div>
+    </div>
+    <button type="button" class="tear-open-button">Tear open</button>
+    <div class="card-footer">
+      Mailed with Postmarked — <a href="/">send one back from wherever you are.</a>
+    </div>
+  </div>
+
+</main>
+
+<script type="module" src="/js/card.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+/* index.html — compose flow: arrival / locating / write / confirm / sent drawer */
+
+.screen {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  gap: 20px;
+  text-align: center;
+}
+
+.screen.is-active {
+  display: flex;
+}
+
+.headline {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 800;
+  font-size: clamp(22px, 4.5vw, 34px);
+  max-width: 20ch;
+  color: var(--paper);
+}
+
+.subline {
+  color: var(--paper);
+  opacity: 0.8;
+  max-width: 46ch;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.primary-button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  padding: 14px 28px;
+  min-height: 44px;
+  border-radius: 4px;
+  border: 1px solid var(--paper-shade);
+  background: var(--paper);
+  color: var(--ink);
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+
+.primary-button:active {
+  transform: scale(0.97);
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--paper);
+  text-decoration: underline;
+  font-size: 13px;
+  opacity: 0.75;
+  min-height: 44px;
+  padding: 8px;
+}
+
+/* Locating */
+
+.compass-rose {
+  width: 72px;
+  height: 72px;
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  position: relative;
+  opacity: 0.85;
+  animation: compass-spin 2.4s linear infinite;
+}
+
+.compass-rose::before,
+.compass-rose::after {
+  content: '';
+  position: absolute;
+  background: var(--airmail-red);
+}
+
+.compass-rose::before {
+  width: 2px;
+  height: 28px;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.compass-rose::after {
+  width: 2px;
+  height: 28px;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--airmail-blue);
+}
+
+@keyframes compass-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compass-rose {
+    animation: none;
+  }
+}
+
+/* Write screen */
+
+.write-title-input {
+  width: 92vw;
+  max-width: 630px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  border: 1px solid var(--paper-shade);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.write-title-input::placeholder {
+  color: var(--ink-soft);
+}
+
+.write-card-preview {
+  width: 92vw;
+  max-width: 630px;
+}
+
+.write-card-preview .postcard {
+  width: 100%;
+  max-width: none;
+}
+
+.char-counter {
+  align-self: flex-end;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+.postcard.is-sending {
+  animation: send-off 700ms cubic-bezier(0.4, 0.1, 0.6, 1) forwards;
+}
+
+@keyframes send-off {
+  from { transform: scale(1) rotate(0) translate(0, 0); opacity: 1; }
+  to { transform: scale(0.7) rotate(8deg) translate(40%, -60%); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard.is-sending {
+    animation: fade-out 300ms ease forwards;
+  }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+/* Confirm screen */
+
+.confirm-lines {
+  color: var(--paper);
+  max-width: 46ch;
+}
+
+.confirm-lines .line-1 {
+  font-size: 16px;
+}
+
+.confirm-lines .line-2 {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 250ms ease, transform 250ms ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Sent drawer */
+
+.drawer-caption {
+  font-size: 12px;
+  opacity: 0.6;
+  max-width: 40ch;
+}
+
+.drawer-list {
+  width: 92vw;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.drawer-item {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--paper);
+}
+
+.drawer-item-info {
+  font-size: 13px;
+}
+
+.drawer-item-info .place {
+  font-weight: 600;
+}
+
+.drawer-item-info .meta {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.drawer-empty {
+  color: var(--paper);
+  opacity: 0.6;
+  font-size: 13px;
+}
+
+@media (max-width: 360px) {
+  .headline {
+    font-size: 20px;
+  }
+}

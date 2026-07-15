@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Mail a postcard from exactly where you're standing — location-locked, time-delayed, delivered by you." />
+<title>Postmarked</title>
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/shared.css" />
+<link rel="stylesheet" href="/css/compose.css" />
+</head>
+<body>
+
+<main>
+
+  <section class="screen is-active" id="screen-arrival">
+    <h1 class="headline">Mail a postcard from exactly where you're standing.</h1>
+    <p class="subline">No account. No app for them. It arrives in a few days, postmarked with this place, this weather, this moment.</p>
+    <button type="button" class="primary-button" id="findMeBtn">Find where I am</button>
+    <button type="button" class="link-button" id="drawerLinkArrival" hidden>Your mailed cards</button>
+  </section>
+
+  <section class="screen" id="screen-locating">
+    <div class="compass-rose" aria-hidden="true"></div>
+    <p class="subline" id="locatingText">Finding where you are…</p>
+  </section>
+
+  <section class="screen" id="screen-denied">
+    <h1 class="headline">Postcards need a place.</h1>
+    <p class="subline">This only works from somewhere real — that's the whole point. Allow location access and try again, or come back when you're out in the world.</p>
+    <button type="button" class="primary-button" id="tryAgainBtn">Try again</button>
+  </section>
+
+  <section class="screen" id="screen-write">
+    <input type="text" class="write-title-input" id="titleInput" maxlength="40" placeholder="Greetings from…" aria-label="Title (optional)" />
+    <div class="write-card-preview" id="writeCardPreview"></div>
+    <div class="char-counter" id="charCounter">300 characters left</div>
+    <button type="button" class="primary-button" id="mailItBtn">Mail it</button>
+  </section>
+
+  <section class="screen" id="screen-confirm">
+    <div class="confirm-lines">
+      <div class="line-1" id="confirmLine1"></div>
+      <div class="line-2" id="confirmLine2"></div>
+    </div>
+    <button type="button" class="primary-button" id="deliverBtn">Deliver it</button>
+    <button type="button" class="link-button" id="drawerLinkConfirm">Your mailed cards</button>
+  </section>
+
+  <section class="screen" id="screen-drawer">
+    <h1 class="headline">Your mailed cards</h1>
+    <p class="drawer-caption">Kept on this device only — clearing your browser clears the drawer.</p>
+    <div class="drawer-list" id="drawerList"></div>
+    <button type="button" class="link-button" id="drawerBackBtn">← Back</button>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="/js/compose.js"></script>
+</body>
+</html>
