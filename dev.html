@@ -30,7 +30,10 @@
   <form class="dev-form" id="devForm">
     <label>Lat <input name="lat" type="number" step="0.01" value="38.71" /></label>
     <label>Lng <input name="lng" type="number" step="0.01" value="-9.14" /></label>
-    <label>Title <input name="ti" type="text" maxlength="40" value="Greetings from the hill" /></label>
+    <label>Title (old cards only) <input name="ti" type="text" maxlength="40" value="" /></label>
+    <label>To <input name="to" type="text" maxlength="30" value="Priya" /></label>
+    <label>Ink (0-3) <input name="ink" type="number" min="0" max="3" value="0" /></label>
+    <label>Stamp variant (0-2) <input name="sv" type="number" min="0" max="2" value="0" /></label>
     <label>Sender <input name="s" type="text" maxlength="40" value="Sanjana" /></label>
     <label>Weather code <input name="wc" type="number" value="0" /></label>
     <label>Temp °C <input name="wt" type="number" value="34" /></label>
@@ -48,6 +51,7 @@
     <button type="button" id="zoomBtn">Preview: zoom overlay</button>
     <button type="button" id="damagedBtn">Preview: damaged</button>
     <button type="button" id="compareBtn">Determinism check (console)</button>
+    <button type="button" id="rackBtn">Preview: stamp rack (3 variants)</button>
   </div>
 </div>
 
@@ -88,6 +92,12 @@ function payloadFromForm() {
   };
   const ti = fd.get('ti');
   if (ti) payload.ti = ti;
+  const to = fd.get('to');
+  if (to) payload.to = to;
+  const ink = parseInt(fd.get('ink'), 10);
+  if (ink) payload.ink = ink;
+  const sv = parseInt(fd.get('sv'), 10);
+  if (sv) payload.sv = sv;
   const wt = fd.get('wt');
   if (wt !== '') {
     payload.wt = parseInt(wt, 10);
@@ -200,6 +210,21 @@ document.getElementById('compareBtn').addEventListener('click', () => {
   const a = buildCardElement(payload, { editable: false }).card.outerHTML;
   const b = buildCardElement(payload, { editable: false }).card.outerHTML;
   console.log('Determinism check:', a === b ? 'PASS — identical markup' : 'FAIL — markup differs');
+});
+document.getElementById('rackBtn').addEventListener('click', () => {
+  stage.innerHTML = '';
+  stateLabel.textContent = 'stamp rack — 3 variants for these coords';
+  const payload = payloadFromForm();
+  const row = document.createElement('div');
+  row.style.display = 'flex';
+  row.style.gap = '16px';
+  for (let sv = 0; sv < 3; sv++) {
+    const wrap = document.createElement('div');
+    wrap.style.width = '90px';
+    wrap.appendChild(renderStampSVG(payload, sv));
+    row.appendChild(wrap);
+  }
+  stage.appendChild(row);
 });
 
 renderCard();

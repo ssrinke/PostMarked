@@ -29,8 +29,7 @@ export function seedStringFor(lat, lng) {
 }
 
 // The twelve fixed draws (§5), plus the rng itself so per-motif code can keep drawing.
-export function deriveSeed(lat, lng) {
-  const seedString = seedStringFor(lat, lng);
+function deriveSeedFromString(seedString) {
   const rng = mulberry32(fnv1a(seedString));
   const hueA = Math.floor(rng() * 360);
   const hueB = (hueA + 140 + Math.floor(rng() * 80)) % 360;
@@ -48,6 +47,16 @@ export function deriveSeed(lat, lng) {
     seedString, rng, hueA, hueB, motif, sunX, sunY, bandCount, postmarkRot,
     birdCount, birdX, birdY, detailSeedA, detailSeedB,
   };
+}
+
+export function deriveSeed(lat, lng) {
+  return deriveSeedFromString(seedStringFor(lat, lng));
+}
+
+// Stamp artwork only: seed becomes FNV1a(seedString + ":" + sv) — variant offset (§3/§1).
+// The card-front artwork always keeps using the base seed, unaffected by sv.
+export function deriveStampSeed(lat, lng, sv) {
+  return deriveSeedFromString(`${seedStringFor(lat, lng)}:${sv || 0}`);
 }
 
 const SUN_COLOR = 'hsl(40 65% 70%)';
@@ -289,9 +298,11 @@ function vintageOverlay(svg, defs, width, height, filterId) {
   svg.appendChild(el('rect', { x: 0, y: 0, width, height, fill: 'none', filter: `url(#${filterId})` }));
 }
 
-// 4:5 stamp, 120x150 viewBox units.
-export function renderStampSVG(payload) {
-  const seed = deriveSeed(payload.lat, payload.lng);
+// 4:5 stamp, 120x150 viewBox units. `svOverride` lets the stamp rack preview a
+// specific variant regardless of the payload's chosen `sv` (used to render the rack itself).
+export function renderStampSVG(payload, svOverride) {
+  const sv = svOverride !== undefined ? svOverride : (payload.sv || 0);
+  const seed = deriveStampSeed(payload.lat, payload.lng, sv);
   const palette = paletteFor(seed.hueA, seed.hueB);
   const maskId = `perf-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}`;
 

@@ -36,6 +36,15 @@ function validate(body) {
   const titleRaw = typeof body.title === 'string' ? body.title.trim() : '';
   if (titleRaw.length > 40) return { error: 'title' };
 
+  const recipientNameRaw = typeof body.recipientName === 'string' ? body.recipientName.trim() : '';
+  if (recipientNameRaw.length > 30) return { error: 'recipientName' };
+
+  const ink = body.ink === undefined ? 0 : Number(body.ink);
+  if (!Number.isInteger(ink) || ink < 0 || ink > 3) return { error: 'ink' };
+
+  const stampVariant = body.stampVariant === undefined ? 0 : Number(body.stampVariant);
+  if (!Number.isInteger(stampVariant) || stampVariant < 0 || stampVariant > 2) return { error: 'stampVariant' };
+
   const lat = Number(body.lat);
   const lng = Number(body.lng);
   if (!Number.isFinite(lat) || lat < -90 || lat > 90) return { error: 'lat' };
@@ -43,7 +52,7 @@ function validate(body) {
 
   const website = typeof body.website === 'string' ? body.website : '';
 
-  return { message, senderName, title: titleRaw, lat, lng, website };
+  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, lat, lng, website };
 }
 
 async function fetchWithTimeout(url, options, timeoutMs) {
@@ -197,7 +206,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { message, senderName, title, lat, lng } = validated;
+  const { message, senderName, title, recipientName, ink, stampVariant, lat, lng } = validated;
   const nowMs = Date.now();
 
   const [{ pl, co }, weather] = await Promise.all([
@@ -220,6 +229,9 @@ export default async function handler(req, res) {
     nb,
   };
   if (title) payload.ti = title;
+  if (recipientName) payload.to = recipientName;
+  if (ink) payload.ink = ink;
+  if (stampVariant) payload.sv = stampVariant;
   if (weather.wt !== undefined) {
     payload.wt = weather.wt;
     payload.wc = weather.wc;
@@ -230,9 +242,13 @@ export default async function handler(req, res) {
   const sig = await ed.signAsync(bytes, privateKey);
   const fragment = `${base64url(bytes)}.${base64url(sig)}`;
 
-  const proto = req.headers['x-forwarded-proto'] || 'https';
-  const host = req.headers['x-forwarded-host'] || req.headers.host;
-  const origin = `${proto}://${host}`;
+  let origin = process.env.APP_BASE_URL;
+  if (!origin) {
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    origin = `${proto}://${host}`;
+  }
+  origin = origin.replace(/\/+$/, '');
   const cardUrl = `${origin}/card.html#${fragment}`;
 
   if (cardUrl.length > 6000) {

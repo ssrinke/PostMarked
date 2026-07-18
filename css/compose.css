@@ -124,20 +124,84 @@
 
 /* Write screen */
 
-.write-title-input {
-  width: 92vw;
-  max-width: 630px;
+.tray-label {
   font-family: 'Courier Prime', monospace;
-  font-size: 13px;
-  padding: 10px 12px;
-  border-radius: 3px;
-  border: 1px solid var(--paper-shade);
-  background: var(--paper);
-  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
 }
 
-.write-title-input::placeholder {
-  color: var(--ink-soft);
+.ink-tray {
+  width: 92vw;
+  max-width: 630px;
+}
+
+.ink-dots {
+  display: flex;
+  gap: 12px;
+}
+
+.ink-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ink-dot::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--dot-color);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  transition: box-shadow 150ms ease;
+}
+
+.ink-dot[aria-checked="true"]::before {
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink), 0 1px 2px rgb(0 0 0 / 0.2);
+}
+
+.stamp-rack {
+  width: 92vw;
+  max-width: 630px;
+}
+
+.stamp-rack-items {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #B49A72;
+}
+
+.stamp-rack-item {
+  width: 72px;
+  border: none;
+  background: none;
+  padding: 0;
+  transition: transform 150ms ease;
+}
+
+.stamp-rack-item svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.stamp-rack-item[aria-checked="true"] {
+  transform: translateY(-4px);
+}
+
+.stamp-rack-item[aria-checked="true"] svg {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
 }
 
 .write-card-preview {
@@ -210,19 +274,69 @@
 
 /* Confirm screen */
 
-.confirm-lines {
+.postal-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 92vw;
+  max-width: 480px;
+}
+
+@media (min-width: 560px) {
+  .postal-steps {
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 640px;
+  }
+}
+
+.postal-step {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--paper-shade);
+  background: var(--paper);
+  text-align: left;
+}
+
+.postal-step .step-text {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.postal-step.is-done {
+  opacity: 0.85;
+}
+
+.postal-step.is-done .step-text {
   color: var(--ink);
-  max-width: 46ch;
 }
 
-.confirm-lines .line-1 {
-  font-size: 16px;
+.postal-step.is-current {
+  border-color: var(--airmail-blue);
+  background: rgb(46 94 140 / 0.06);
 }
 
-.confirm-lines .line-2 {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-top: 4px;
+.postal-step.is-current .step-text {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.postal-step.is-upcoming .step-text {
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+
+.step-explainer {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.85;
+  line-height: 1.5;
+  margin: 8px 0 0;
 }
 
 .toast {

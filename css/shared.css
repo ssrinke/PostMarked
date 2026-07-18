@@ -84,14 +84,13 @@ a {
   white-space: nowrap;
 }
 
-/* Desk scene decoration (§2.2) */
+/* Desk scene decoration v2 (§2) */
 
 .desk-decor {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.06;
 }
 
 .desk-decor svg {
@@ -99,38 +98,94 @@ a {
   display: block;
 }
 
-.decor-stamp {
-  top: 4%;
-  left: 3%;
+.decor-stamp-a {
+  top: 3%;
+  left: 2%;
+  width: 90px;
+  height: 108px;
+  opacity: 0.07;
+}
+
+.decor-stamp-b {
+  top: 5%;
+  left: 5%;
+  width: 90px;
+  height: 108px;
+  opacity: 0.07;
+}
+
+.decor-parlabel {
+  top: 5%;
+  right: 8%;
   width: 110px;
-  height: 132px;
+  height: 24px;
+  opacity: 0.06;
+}
+
+.decor-chevrons {
+  top: 11%;
+  right: 5%;
+  width: 90px;
+  height: 20px;
+  opacity: 0.06;
+}
+
+.decor-inkpen {
+  top: 42%;
+  right: 1.5%;
+  width: 80px;
+  height: 88px;
+  opacity: 0.06;
 }
 
 .decor-twine {
   bottom: 4%;
   right: 4%;
-  width: 130px;
-  height: 130px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.07;
 }
 
-.decor-chevrons {
-  top: 6%;
-  right: 6%;
-  width: 90px;
-  height: 30px;
+.decor-coffee {
+  bottom: 5%;
+  left: 4%;
+  width: 92px;
+  height: 92px;
+  opacity: 0.08;
+}
+
+.decor-flower {
+  bottom: 6%;
+  left: 15%;
+  width: 50px;
+  height: 58px;
+  opacity: 0.06;
 }
 
 .decor-postmark {
-  bottom: 6%;
-  left: 5%;
-  width: 100px;
-  height: 100px;
+  top: 44%;
+  left: 1.5%;
+  width: 90px;
+  height: 90px;
+  opacity: 0.05;
+}
+
+.decor-stars {
+  top: 2%;
+  left: 40%;
+  width: 150px;
+  height: 28px;
+  opacity: 0.04;
 }
 
 @media (max-width: 480px) {
+  .decor-stamp-b,
+  .decor-parlabel,
+  .decor-inkpen,
   .decor-twine,
-  .decor-chevrons,
-  .decor-postmark {
+  .decor-flower,
+  .decor-postmark,
+  .decor-stars {
     display: none;
   }
 }
@@ -253,6 +308,40 @@ a {
   min-width: 0;
 }
 
+.back-line-label {
+  font-family: 'Courier Prime', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.back-to-line {
+  display: flex;
+  align-items: baseline;
+  border-bottom: 1px solid #D8CCB4;
+  padding-bottom: 3px;
+  margin-bottom: 6px;
+}
+
+.back-to-name,
+.back-to-input {
+  font-family: 'Caveat', cursive;
+  font-weight: 600;
+  font-size: clamp(15px, 2.4vw, 20px);
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+}
+
+.back-to-input {
+  border: none;
+  background: transparent;
+  outline: none;
+}
+
 .back-message,
 .back-message-input {
   font-family: 'Caveat', cursive;
@@ -263,14 +352,30 @@ a {
   white-space: pre-wrap;
   transform: rotate(-0.4deg);
   flex: 1;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.5em - 1px),
+    #D8CCB4 calc(1.5em - 1px),
+    #D8CCB4 1.5em
+  );
+  background-size: 100% 1.5em;
 }
 
 .back-message-input {
   resize: none;
   border: none;
-  background: transparent;
+  background-color: transparent;
   width: 100%;
   outline: none;
+}
+
+.back-signature-line {
+  display: flex;
+  align-items: baseline;
+  border-bottom: 1px solid #D8CCB4;
+  padding-bottom: 3px;
+  margin-top: 8px;
 }
 
 .back-signature,
@@ -282,7 +387,8 @@ a {
   border: none;
   background: transparent;
   outline: none;
-  margin-top: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .back-rule {
@@ -302,6 +408,45 @@ a {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-soft);
+}
+
+.par-avion-label {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border: 1.5px solid var(--airmail-blue);
+  border-radius: 50%/50%;
+  background: var(--paper);
+  color: var(--airmail-blue);
+  font-family: 'Courier Prime', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.stamp-guide {
+  position: absolute;
+  top: 14%;
+  right: 4%;
+  width: 33%;
+  max-width: 122px;
+  aspect-ratio: 4 / 5;
+  border: 1px dashed #C9BBA0;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.stamp-guide-label {
+  font-family: 'Courier Prime', monospace;
+  font-size: 6px;
+  letter-spacing: 0.06em;
+  color: #C9BBA0;
+  padding: 0 6px;
 }
 
 .back-stamp {
