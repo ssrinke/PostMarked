@@ -1,4 +1,5 @@
-import { buildCardElement } from './render-card.js';
+import { buildCardElement, INK_COLORS } from './render-card.js';
+import { renderStampSVG } from './stamp.js';
 
 const screens = {
   arrival: document.getElementById('screen-arrival'),
@@ -13,7 +14,7 @@ const SENT_KEY = 'postmarked.sent.v1';
 const POSITION_MAX_AGE_MS = 5 * 60 * 1000;
 
 let position = null; // { lat, lng, timestamp }
-let draft = { m: '', s: '', ti: '' };
+let draft = { m: '', s: '', to: '', ink: 0, sv: 0 };
 let cardPreview = null; // { card, front, back }
 
 function showScreen(name) {
@@ -99,12 +100,96 @@ function updateApproxCaption() {
   caption.hidden = !(position && position.accuracy > 5000);
 }
 
+// --- Ink tray (§3.4) ---
+
+function buildInkTray() {
+  const container = document.getElementById('inkDots');
+  container.innerHTML = '';
+  INK_COLORS.forEach((color, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'ink-dot';
+    dot.style.setProperty('--dot-color', color);
+    dot.setAttribute('role', 'radio');
+    dot.setAttribute('aria-checked', String(i === draft.ink));
+    dot.setAttribute('aria-label', `Ink color ${i + 1}`);
+    dot.tabIndex = i === draft.ink ? 0 : -1;
+    dot.addEventListener('click', () => selectInk(i));
+    dot.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.ink-dot', i, selectInk));
+    container.appendChild(dot);
+  });
+}
+
+function selectInk(index) {
+  draft.ink = index;
+  buildInkTray();
+  document.getElementById('inkDots').querySelectorAll('.ink-dot')[index]?.focus();
+  applyInkToPreview();
+}
+
+function applyInkToPreview() {
+  if (!cardPreview) return;
+  const color = INK_COLORS[draft.ink];
+  const selectors = ['.back-to-name', '.back-to-input', '.back-message', '.back-message-input', '.back-signature', '.back-signature-input'];
+  for (const sel of selectors) {
+    const el = cardPreview.back.querySelector(sel);
+    if (el) el.style.color = color;
+  }
+}
+
+function handleTrayArrowKey(e, container, itemSelector, currentIndex, onSelect) {
+  const items = container.querySelectorAll(itemSelector);
+  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  e.preventDefault();
+  const delta = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
+  const next = (currentIndex + delta + items.length) % items.length;
+  onSelect(next);
+}
+
+// --- Stamp rack (§3.5) ---
+
+function buildStampRack() {
+  const container = document.getElementById('stampRackItems');
+  container.innerHTML = '';
+  if (!position) return;
+  const payload = { lat: position.lat, lng: position.lng };
+  for (let sv = 0; sv < 3; sv++) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'stamp-rack-item';
+    item.setAttribute('role', 'radio');
+    item.setAttribute('aria-checked', String(sv === draft.sv));
+    item.setAttribute('aria-label', `Stamp variant ${sv + 1}`);
+    item.tabIndex = sv === draft.sv ? 0 : -1;
+    item.appendChild(renderStampSVG(payload, sv));
+    item.addEventListener('click', () => selectStamp(sv));
+    item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.stamp-rack-item', sv, selectStamp));
+    container.appendChild(item);
+  }
+}
+
+function selectStamp(sv) {
+  draft.sv = sv;
+  buildStampRack();
+  document.getElementById('stampRackItems').querySelectorAll('.stamp-rack-item')[sv]?.focus();
+  applyStampToPreview();
+}
+
+function applyStampToPreview() {
+  if (!cardPreview || !position) return;
+  const wrap = cardPreview.back.querySelector('.back-stamp');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  wrap.appendChild(renderStampSVG({ lat: position.lat, lng: position.lng }, draft.sv));
+}
+
 // --- Write screen ---
 
 function enterWriteScreen() {
   showScreen('write');
-  draft = { m: '', s: '', ti: '' };
-  document.getElementById('titleInput').value = '';
+  draft = { m: '', s: '', to: '', ink: 0, sv: 0 };
+  buildInkTray();
+  buildStampRack();
   renderCardPreview();
   updateCounter();
   updateApproxCaption();
@@ -113,7 +198,7 @@ function enterWriteScreen() {
 function renderCardPreview() {
   const container = document.getElementById('writeCardPreview');
   container.innerHTML = '';
-  const payload = { v: 1, m: draft.m, s: draft.s, lat: position.lat, lng: position.lng };
+  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, lat: position.lat, lng: position.lng };
   cardPreview = buildCardElement(payload, {
     editable: true,
     onMessageInput: (value) => {
@@ -122,6 +207,9 @@ function renderCardPreview() {
     },
     onSignatureInput: (value) => {
       draft.s = value;
+    },
+    onToInput: (value) => {
+      draft.to = value;
     },
   });
   cardPreview.card.classList.add('is-flipped');
@@ -132,10 +220,6 @@ function updateCounter() {
   const remaining = 300 - draft.m.length;
   document.getElementById('charCounter').textContent = `${remaining} characters left`;
 }
-
-document.getElementById('titleInput').addEventListener('input', (e) => {
-  draft.ti = e.target.value;
-});
 
 async function mailIt() {
   const button = document.getElementById('mailItBtn');
@@ -152,9 +236,11 @@ async function mailIt() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title: draft.ti,
         message: draft.m,
         senderName: draft.s,
+        recipientName: draft.to,
+        ink: draft.ink,
+        stampVariant: draft.sv,
         lat: position.lat,
         lng: position.lng,
         website: '',
@@ -191,23 +277,30 @@ document.getElementById('mailItBtn').addEventListener('click', mailIt);
 document.getElementById('findMeBtn').addEventListener('click', locate);
 document.getElementById('tryAgainBtn').addEventListener('click', locate);
 
-// --- Confirm screen ---
+// --- Confirm screen (§3.7) ---
 
 let lastMailed = null;
 
 function enterConfirmScreen(data) {
   lastMailed = data;
-  document.getElementById('confirmLine1').textContent = `Postcard mailed from ${data.place}.`;
-  document.getElementById('confirmLine2').textContent = `Arriving ${data.arrivalWeekday}, ${data.arrivalDate}. Good things take a few days.`;
+  document.getElementById('confirmHeadline').textContent = `Stamped and sealed in ${data.place}.`;
+  document.getElementById('stepOpens').textContent = `3 · OPENS ${data.arrivalWeekday.toUpperCase()}`;
+  const recipient = draft.to || 'them';
+  document.getElementById('stepExplainer').textContent =
+    `You're the postman now. Send ${recipient} the sealed envelope — it's a link, and it cannot be opened before ${data.arrivalWeekday}.`;
 
-  const deliverBtn = document.getElementById('deliverBtn');
-  setupDeliverButton(deliverBtn, data.place, data.arrivalWeekday, data.cardUrl);
+  const handItBtn = document.getElementById('handItBtn');
+  setupHandItButton(handItBtn, data.place, data.arrivalWeekday, data.cardUrl);
 
   showScreen('confirm');
 }
 
-function setupDeliverButton(button, place, weekday, cardUrl) {
-  const shareText = `I mailed you a postcard from ${place} 📮 It arrives ${weekday} — go look then. ${cardUrl}`;
+function shareTextFor(place, weekday, cardUrl) {
+  return `I mailed you a postcard from ${place} 📮 It arrives ${weekday} — go look then. ${cardUrl}`;
+}
+
+function setupHandItButton(button, place, weekday, cardUrl) {
+  const shareText = shareTextFor(place, weekday, cardUrl);
   button.onclick = async () => {
     if (navigator.share) {
       try {
@@ -217,14 +310,10 @@ function setupDeliverButton(button, place, weekday, cardUrl) {
       }
     } else {
       await navigator.clipboard.writeText(shareText);
-      showToast('Copied — paste it to them');
+      showToast('Copied — now send it to them yourself');
     }
   };
-  if (!navigator.share) {
-    button.textContent = 'Copy link to deliver';
-  } else {
-    button.textContent = 'Deliver it';
-  }
+  button.textContent = navigator.share ? 'Hand it to them' : 'Copy the envelope link';
 }
 
 // --- Sent drawer ---
@@ -260,10 +349,10 @@ function renderDrawer() {
     const again = document.createElement('button');
     again.type = 'button';
     again.className = 'primary-button';
-    again.textContent = 'Deliver again';
+    again.textContent = 'Hand it over again';
     const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date(entry.arrival));
     again.addEventListener('click', async () => {
-      const shareText = `I mailed you a postcard from ${entry.place} 📮 It arrives ${weekday} — go look then. ${entry.cardUrl}`;
+      const shareText = shareTextFor(entry.place, weekday, entry.cardUrl);
       if (navigator.share) {
         try {
           await navigator.share({ text: shareText });
@@ -272,7 +361,7 @@ function renderDrawer() {
         }
       } else {
         await navigator.clipboard.writeText(shareText);
-        showToast('Copied — paste it to them');
+        showToast('Copied — now send it to them yourself');
       }
     });
 

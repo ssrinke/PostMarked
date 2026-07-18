@@ -1,5 +1,5 @@
 import { verifyAndDecode } from './verify.js';
-import { buildCardElement } from './render-card.js';
+import { buildCardElement, INK_COLORS } from './render-card.js';
 import { renderPostmarkSVG } from './postmark.js';
 import { renderStampSVG } from './stamp.js';
 import { fnv1a, mulberry32 } from './stamp.js';
@@ -170,6 +170,14 @@ function renderArrival(payload, fragment) {
   const breakSealButton = states.arrival.querySelector('.break-seal-button');
   const cardWrap = sceneEl.querySelector('.card-wrap');
   cardWrap.innerHTML = '';
+
+  const toNameEl = envelope.querySelector('.envelope-to-name');
+  if (payload.to) {
+    toNameEl.textContent = `To ${payload.to}`;
+    toNameEl.style.color = INK_COLORS[payload.ink || 0];
+  } else {
+    toNameEl.textContent = '';
+  }
 
   const zoom = setupZoomOverlay(payload);
 

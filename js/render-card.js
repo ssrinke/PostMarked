@@ -3,6 +3,8 @@
 import { renderStampSVG, renderFrontSVG } from './stamp.js';
 import { renderPostmarkSVG } from './postmark.js';
 
+export const INK_COLORS = ['#3A3128', '#2A3550', '#2F4A38', '#8C3B2E'];
+
 function h(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -40,31 +42,71 @@ function buildFront(payload) {
   return front;
 }
 
-function buildBack(payload, { editable = false, onMessageInput, onSignatureInput } = {}) {
+function buildBack(payload, options = {}) {
+  const { editable = false, onMessageInput, onSignatureInput, onToInput } = options;
   const back = h('div', { className: 'postcard-face postcard-back' });
+  const ink = INK_COLORS[payload.ink || 0];
 
   const left = h('div', { className: 'back-left' });
+
+  if (editable || payload.to) {
+    const toLine = h('div', { className: 'back-to-line' });
+    toLine.appendChild(text('span', 'back-line-label', 'To'));
+    if (editable) {
+      const toInput = h('input', { className: 'back-to-input', type: 'text', maxlength: '30', placeholder: 'their name' });
+      toInput.value = payload.to || '';
+      toInput.style.color = ink;
+      if (onToInput) toInput.addEventListener('input', () => onToInput(toInput.value));
+      toLine.appendChild(toInput);
+    } else {
+      const toName = text('span', 'back-to-name', payload.to);
+      toName.style.color = ink;
+      toLine.appendChild(toName);
+    }
+    left.appendChild(toLine);
+  }
+
   if (editable) {
     const textarea = h('textarea', { className: 'back-message-input', maxlength: '300', placeholder: 'Write your message…' });
     textarea.value = payload.m || '';
+    textarea.style.color = ink;
     if (onMessageInput) textarea.addEventListener('input', () => onMessageInput(textarea.value));
     left.appendChild(textarea);
-    const sigInput = h('input', { className: 'back-signature-input', type: 'text', maxlength: '40', placeholder: 'Your name' });
-    sigInput.value = payload.s || '';
-    if (onSignatureInput) sigInput.addEventListener('input', () => onSignatureInput(sigInput.value));
-    left.appendChild(sigInput);
   } else {
     const messageEl = text('div', 'back-message', payload.m || '');
+    messageEl.style.color = ink;
     left.appendChild(messageEl);
-    const sigEl = text('div', 'back-signature', payload.s ? `— ${payload.s}` : '');
-    left.appendChild(sigEl);
   }
+
+  const fromLine = h('div', { className: 'back-signature-line' });
+  fromLine.appendChild(text('span', 'back-line-label', 'From'));
+  if (editable) {
+    const sigInput = h('input', { className: 'back-signature-input', type: 'text', maxlength: '40', placeholder: 'Your name' });
+    sigInput.value = payload.s || '';
+    sigInput.style.color = ink;
+    if (onSignatureInput) sigInput.addEventListener('input', () => onSignatureInput(sigInput.value));
+    fromLine.appendChild(sigInput);
+  } else {
+    const sigEl = text('span', 'back-signature', payload.s || '');
+    sigEl.style.color = ink;
+    fromLine.appendChild(sigEl);
+  }
+  left.appendChild(fromLine);
+
   back.appendChild(left);
 
   back.appendChild(h('div', { className: 'back-rule' }));
 
   const right = h('div', { className: 'back-right' });
   right.appendChild(text('div', 'back-heading', 'POST CARD / CARTE POSTALE'));
+
+  const parAvion = h('div', { className: 'par-avion-label' });
+  parAvion.appendChild(text('span', '', 'PAR AVION ✈'));
+  right.appendChild(parAvion);
+
+  const stampGuide = h('div', { className: 'stamp-guide' });
+  stampGuide.appendChild(text('div', 'stamp-guide-label', 'AFFIX STAMP'));
+  right.appendChild(stampGuide);
 
   const stampWrap = h('div', { className: 'back-stamp' });
   stampWrap.appendChild(renderStampSVG(payload));

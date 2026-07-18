@@ -149,6 +149,22 @@
   color: var(--ink-soft);
 }
 
+.envelope-to-name {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: clamp(20px, 4vw, 32px);
+}
+
+.envelope-to-name:empty {
+  display: none;
+}
+
 /* Wax seal */
 .envelope-seal {
   position: absolute;
