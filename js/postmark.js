@@ -58,6 +58,8 @@ export function renderPostmarkSVG(payload) {
   const filter = el('filter', { id: filterId });
   filter.appendChild(el('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.4', numOctaves: '2', seed: '7', result: 'n' }));
   filter.appendChild(el('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: '1.1' }));
+  // Subtle white halo so the cancellation ink stays legible over stamp-2's red gingham (v1.5b §2).
+  filter.appendChild(el('feDropShadow', { dx: 0, dy: 0, stdDeviation: 1.5, 'flood-color': 'white', 'flood-opacity': 0.9 }));
   defs.appendChild(filter);
 
   const arcId = `postmark-arc-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}`;

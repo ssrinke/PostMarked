@@ -14,8 +14,12 @@ const SENT_KEY = 'postmarked.sent.v1';
 const POSITION_MAX_AGE_MS = 5 * 60 * 1000;
 
 let position = null; // { lat, lng, timestamp }
-let draft = { m: '', s: '', to: '', ink: 0, sv: 0 };
+let draft = { m: '', s: '', to: '', ink: 2, sv: 0 };
 let cardPreview = null; // { card, front, back }
+
+// Compose ink tray offers only green (index 2) and red (index 3) into INK_COLORS;
+// indices 0/1 (sepia, blue-black) stay renderer-only, for previously mailed cards (v1.5b §6).
+const INK_TRAY_OPTIONS = [2, 3];
 
 function showScreen(name) {
   for (const s of Object.values(screens)) s.classList.remove('is-active');
@@ -105,25 +109,26 @@ function updateApproxCaption() {
 function buildInkTray() {
   const container = document.getElementById('inkDots');
   container.innerHTML = '';
-  INK_COLORS.forEach((color, i) => {
+  INK_TRAY_OPTIONS.forEach((colorIndex, i) => {
     const dot = document.createElement('button');
     dot.type = 'button';
     dot.className = 'ink-dot';
-    dot.style.setProperty('--dot-color', color);
+    dot.style.setProperty('--dot-color', INK_COLORS[colorIndex]);
     dot.setAttribute('role', 'radio');
-    dot.setAttribute('aria-checked', String(i === draft.ink));
-    dot.setAttribute('aria-label', `Ink color ${i + 1}`);
-    dot.tabIndex = i === draft.ink ? 0 : -1;
-    dot.addEventListener('click', () => selectInk(i));
-    dot.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.ink-dot', i, selectInk));
+    dot.setAttribute('aria-checked', String(colorIndex === draft.ink));
+    dot.setAttribute('aria-label', colorIndex === 2 ? 'Green ink' : 'Red ink');
+    dot.tabIndex = colorIndex === draft.ink ? 0 : -1;
+    dot.addEventListener('click', () => selectInk(colorIndex));
+    dot.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.ink-dot', i, (nextPos) => selectInk(INK_TRAY_OPTIONS[nextPos])));
     container.appendChild(dot);
   });
 }
 
-function selectInk(index) {
-  draft.ink = index;
+function selectInk(colorIndex) {
+  draft.ink = colorIndex;
   buildInkTray();
-  document.getElementById('inkDots').querySelectorAll('.ink-dot')[index]?.focus();
+  const pos = INK_TRAY_OPTIONS.indexOf(colorIndex);
+  document.getElementById('inkDots').querySelectorAll('.ink-dot')[pos]?.focus();
   applyInkToPreview();
 }
 
@@ -153,7 +158,7 @@ function buildStampRack() {
   container.innerHTML = '';
   if (!position) return;
   const payload = { lat: position.lat, lng: position.lng };
-  for (let sv = 0; sv < 3; sv++) {
+  for (let sv = 0; sv < 2; sv++) {
     const item = document.createElement('button');
     item.type = 'button';
     item.className = 'stamp-rack-item';
@@ -187,7 +192,7 @@ function applyStampToPreview() {
 
 function enterWriteScreen() {
   showScreen('write');
-  draft = { m: '', s: '', to: '', ink: 0, sv: 0 };
+  draft = { m: '', s: '', to: '', ink: 2, sv: 0 };
   buildInkTray();
   buildStampRack();
   renderCardPreview();

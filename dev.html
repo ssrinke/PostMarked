@@ -33,7 +33,7 @@
     <label>Title (old cards only) <input name="ti" type="text" maxlength="40" value="" /></label>
     <label>To <input name="to" type="text" maxlength="30" value="Priya" /></label>
     <label>Ink (0-3) <input name="ink" type="number" min="0" max="3" value="0" /></label>
-    <label>Stamp variant (0-2) <input name="sv" type="number" min="0" max="2" value="0" /></label>
+    <label>Stamp variant (0-1, 2=old→falls back to 0) <input name="sv" type="number" min="0" max="2" value="0" /></label>
     <label>Sender <input name="s" type="text" maxlength="40" value="Sanjana" /></label>
     <label>Weather code <input name="wc" type="number" value="0" /></label>
     <label>Temp °C <input name="wt" type="number" value="34" /></label>
@@ -51,7 +51,7 @@
     <button type="button" id="zoomBtn">Preview: zoom overlay</button>
     <button type="button" id="damagedBtn">Preview: damaged</button>
     <button type="button" id="compareBtn">Determinism check (console)</button>
-    <button type="button" id="rackBtn">Preview: stamp rack (3 variants)</button>
+    <button type="button" id="rackBtn">Preview: stamp rack (2 variants)</button>
   </div>
 </div>
 
@@ -134,6 +134,7 @@ function renderTear() {
   scene.innerHTML = `
     <div class="card-wrap"></div>
     <div class="envelope">
+      <div class="envelope-texture" aria-hidden="true"></div>
       <div class="envelope-address">POST CARD</div>
       <div class="envelope-seal">
         <div class="seal-half seal-half-left"></div>
@@ -213,12 +214,12 @@ document.getElementById('compareBtn').addEventListener('click', () => {
 });
 document.getElementById('rackBtn').addEventListener('click', () => {
   stage.innerHTML = '';
-  stateLabel.textContent = 'stamp rack — 3 variants for these coords';
+  stateLabel.textContent = 'stamp rack — 2 variants for these coords';
   const payload = payloadFromForm();
   const row = document.createElement('div');
   row.style.display = 'flex';
   row.style.gap = '16px';
-  for (let sv = 0; sv < 3; sv++) {
+  for (let sv = 0; sv < 2; sv++) {
     const wrap = document.createElement('div');
     wrap.style.width = '90px';
     wrap.appendChild(renderStampSVG(payload, sv));
