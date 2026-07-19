@@ -124,6 +124,42 @@
 
 /* Write screen */
 
+.write-heading {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(22px, 4.5vw, 34px);
+  color: var(--ink);
+}
+
+.write-flourish {
+  width: 60px;
+  height: 10px;
+  margin: 6px auto 4px;
+  position: relative;
+}
+
+.write-flourish::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink);
+  opacity: 0.4;
+}
+
+.write-flourish::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: var(--ink);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
 .tray-label {
   font-family: 'Courier Prime', monospace;
   font-size: 11px;
@@ -131,15 +167,20 @@
   text-transform: uppercase;
   color: var(--ink-soft);
   margin-bottom: 8px;
+  text-align: center;
 }
 
 .ink-tray {
   width: 92vw;
   max-width: 630px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .ink-dots {
   display: flex;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -171,10 +212,14 @@
 .stamp-rack {
   width: 92vw;
   max-width: 630px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .stamp-rack-items {
   display: flex;
+  justify-content: center;
   gap: 16px;
   padding-bottom: 10px;
   border-bottom: 2px solid #B49A72;
@@ -216,21 +261,26 @@
   cursor: default;
 }
 
-/* Washi tape — compose card only (§2.2) */
+/* Washi tape — compose card only, vintage ticking-stripe restyle (v1.5b §4) */
 .write-card-preview::before,
 .write-card-preview::after {
   content: '';
   position: absolute;
   width: 90px;
   height: 26px;
-  background: repeating-linear-gradient(
-      45deg,
-      rgb(233 185 162 / 0.55) 0 6px,
-      rgb(233 185 162 / 0.4) 6px 12px
-    );
+  background:
+    repeating-linear-gradient(to right, rgb(184 92 74 / 0.35) 0 2px, transparent 2px 9px),
+    rgb(231 216 186 / 0.65);
+  mix-blend-mode: multiply;
   z-index: 2;
   pointer-events: none;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 3px rgb(90 70 40 / .25);
+  clip-path: polygon(
+    0% 10%, 3% 0%, 6% 14%, 9% 2%, 12% 12%, 15% 0%, 18% 10%,
+    82% 10%, 85% 0%, 88% 12%, 91% 2%, 94% 14%, 97% 0%, 100% 10%,
+    100% 90%, 97% 100%, 94% 86%, 91% 98%, 88% 88%, 85% 100%, 82% 90%,
+    18% 90%, 15% 100%, 12% 88%, 9% 98%, 6% 86%, 3% 100%, 0% 90%
+  );
 }
 
 .write-card-preview::before {
