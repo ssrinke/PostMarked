@@ -1,8 +1,9 @@
 // Single renderer for the card DOM (front + back). Used by compose preview, dev.html, and card.html.
 // All user/derived strings are inserted via textContent only — never innerHTML.
-import { buildStampElement, renderFrontSVG } from './stamp.js';
+import { buildStampElement } from './stamp.js';
 import { renderPostmarkSVG } from './postmark.js';
 import { renderFlowerSVG } from './flower.js';
+import { FRONT_ID_RE } from './fronts.js';
 
 // Index 0/1 (sepia, blue-black) are back-compat only — no longer offered in the compose ink tray.
 // Index 2/3 (green, red) are the current tray (v1.7 §1 paper — both verified ≥4.5:1).
@@ -31,9 +32,17 @@ function formatCoords(lat, lng) {
   return `${latStr}, ${lngStr}`;
 }
 
+// Curated front artwork (v1.8 §1) — /assets/fronts/{fr}.jpg under the paper multiply overlay and
+// the lockup. Missing/invalid `fr` (including every pre-v1.8 card) or a failed image load falls
+// back to the paper texture + lockup alone.
 function buildFront(payload) {
   const front = h('div', { className: 'postcard-face postcard-front' });
-  front.appendChild(renderFrontSVG(payload));
+  if (payload.fr && FRONT_ID_RE.test(payload.fr)) {
+    const img = h('img', { className: 'front-art', alt: '' });
+    img.addEventListener('error', () => img.remove());
+    img.src = `/assets/fronts/${payload.fr}.jpg`;
+    front.appendChild(img);
+  }
   front.appendChild(h('div', { className: 'front-texture-overlay' }));
 
   const lockup = h('div', { className: 'front-lockup' });

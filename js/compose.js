@@ -1,6 +1,7 @@
 import { buildCardElement, INK_COLORS } from './render-card.js';
 import { buildStampElement } from './stamp.js';
 import { renderFlowerSVG, renderFlowerNoneIcon } from './flower.js';
+import { shelfFor, frontsForShelf } from './fronts.js';
 
 const screens = {
   arrival: document.getElementById('screen-arrival'),
@@ -15,7 +16,7 @@ const SENT_KEY = 'postmarked.sent.v1';
 const POSITION_MAX_AGE_MS = 5 * 60 * 1000;
 
 let position = null; // { lat, lng, timestamp }
-let draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0 };
+let draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0, fr: '' };
 let cardPreview = null; // { card, front, back }
 
 // Compose ink tray offers only green (index 2) and red (index 3) into INK_COLORS;
@@ -103,6 +104,52 @@ async function ensureFreshPosition() {
 function updateApproxCaption() {
   const caption = document.getElementById('approxCaption');
   caption.hidden = !(position && position.accuracy > 5000);
+}
+
+// --- Front tray (v1.8 §1.3) ---
+
+function buildFrontTray() {
+  const container = document.getElementById('frontTrayItems');
+  container.innerHTML = '';
+  if (!position) return;
+  const shelf = shelfFor(position.lat, position.lng);
+  const options = frontsForShelf(shelf).slice(0, 4);
+  options.forEach((id, i) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'front-tray-item';
+    item.setAttribute('role', 'radio');
+    item.setAttribute('aria-checked', String(id === draft.fr));
+    item.setAttribute('aria-label', `Front artwork ${i + 1}`);
+    item.tabIndex = id === draft.fr ? 0 : -1;
+    const img = document.createElement('img');
+    img.src = `/assets/fronts/${id}.jpg`;
+    img.alt = '';
+    item.appendChild(img);
+    item.addEventListener('click', () => selectFront(id));
+    item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.front-tray-item', i, (nextPos) => selectFront(options[nextPos])));
+    container.appendChild(item);
+  });
+}
+
+function selectFront(id) {
+  draft.fr = id;
+  buildFrontTray();
+  const options = frontsForShelf(shelfFor(position.lat, position.lng)).slice(0, 4);
+  document.getElementById('frontTrayItems').querySelectorAll('.front-tray-item')[options.indexOf(id)]?.focus();
+  applyFrontToPreview();
+}
+
+function applyFrontToPreview() {
+  if (!cardPreview) return;
+  let img = cardPreview.front.querySelector('.front-art');
+  if (!img) {
+    img = document.createElement('img');
+    img.className = 'front-art';
+    img.alt = '';
+    cardPreview.front.insertBefore(img, cardPreview.front.firstChild);
+  }
+  img.src = `/assets/fronts/${draft.fr}.jpg`;
 }
 
 // --- Ink tray (§3.4) ---
@@ -227,21 +274,42 @@ function applyFlowerToPreview() {
 
 // --- Write screen ---
 
+// v1.8 §5: on short mobile viewports, shrink the card preview (never below 80vw) rather than let
+// the compose flow spill into a vertical scroll.
+function fitCardPreview() {
+  const preview = document.getElementById('writeCardPreview');
+  if (!preview || !screens.write.classList.contains('is-active')) return;
+  preview.style.width = '';
+  requestAnimationFrame(() => {
+    let vw = 92;
+    while (document.documentElement.scrollHeight > window.innerHeight && vw > 80) {
+      vw -= 2;
+      preview.style.width = `${vw}vw`;
+    }
+  });
+}
+
+window.addEventListener('resize', fitCardPreview);
+
 function enterWriteScreen() {
   showScreen('write');
-  draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0 };
+  const shelf = shelfFor(position.lat, position.lng);
+  const defaultFront = frontsForShelf(shelf)[0];
+  draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0, fr: defaultFront };
+  buildFrontTray();
   buildInkTray();
   buildStampRack();
   buildFlowerTray();
   renderCardPreview();
   updateCounter();
   updateApproxCaption();
+  fitCardPreview();
 }
 
 function renderCardPreview() {
   const container = document.getElementById('writeCardPreview');
   container.innerHTML = '';
-  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, fl: draft.fl, lat: position.lat, lng: position.lng };
+  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, fl: draft.fl, fr: draft.fr, lat: position.lat, lng: position.lng };
   cardPreview = buildCardElement(payload, {
     editable: true,
     onMessageInput: (value) => {
@@ -285,6 +353,7 @@ async function mailIt() {
         ink: draft.ink,
         stampVariant: draft.sv,
         flower: draft.fl,
+        front: draft.fr,
         lat: position.lat,
         lng: position.lng,
         website: '',
@@ -337,21 +406,23 @@ function enterConfirmScreen(data) {
   showScreen('confirm');
 }
 
-function shareTextFor(place, cardUrl) {
-  return `I mailed you a postcard from ${place} 📮 ${cardUrl}`;
+// v1.8 §3: url stays in its own share-data field, never concatenated into text, so messengers
+// (WhatsApp, Instagram, …) unfurl the link into a real preview card instead of a bare string.
+function shareTextFor(place) {
+  return `I mailed you a postcard from ${place} 📮`;
 }
 
 function setupHandItButton(button, place, cardUrl) {
-  const shareText = shareTextFor(place, cardUrl);
+  const text = shareTextFor(place);
   button.onclick = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ text: shareText });
+        await navigator.share({ text, url: cardUrl });
       } catch {
         // user cancelled share sheet — no-op
       }
     } else {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(`${text}\n${cardUrl}`);
       showToast('Copied — now send it to them yourself');
     }
   };
@@ -393,15 +464,15 @@ function renderDrawer() {
     again.className = 'primary-button';
     again.textContent = 'Hand it over again';
     again.addEventListener('click', async () => {
-      const shareText = shareTextFor(entry.place, entry.cardUrl);
+      const text = shareTextFor(entry.place);
       if (navigator.share) {
         try {
-          await navigator.share({ text: shareText });
+          await navigator.share({ text, url: entry.cardUrl });
         } catch {
           // cancelled
         }
       } else {
-        await navigator.clipboard.writeText(shareText);
+        await navigator.clipboard.writeText(`${text}\n${entry.cardUrl}`);
         showToast('Copied — now send it to them yourself');
       }
     });

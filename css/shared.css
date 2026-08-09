@@ -246,18 +246,13 @@ a {
   display: flex;
 }
 
-.front-svg,
-.front-svg > svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.postcard-front svg.front-svg {
+.front-art {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .front-texture-overlay {
@@ -340,7 +335,6 @@ a {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-right: 6px;
   flex-shrink: 0;
 }
 
@@ -351,6 +345,7 @@ a {
   right: 24%;
   display: flex;
   align-items: baseline;
+  gap: 6px;
   border-bottom: 1px solid var(--card-rule-on-texture);
   padding-bottom: 2px;
 }
@@ -359,7 +354,8 @@ a {
 .back-to-input {
   font-family: 'Caveat', cursive;
   font-weight: 600;
-  font-size: clamp(14px, 2.2vw, 20px);
+  font-size: 24px;
+  line-height: 1.3;
   color: var(--ink);
   flex: 1;
   min-width: 0;
@@ -369,6 +365,14 @@ a {
   border: none;
   background: transparent;
   outline: none;
+}
+
+.back-to-input::placeholder,
+.back-message-input::placeholder,
+.back-signature-input::placeholder {
+  font-family: 'Caveat', cursive;
+  color: var(--ink);
+  opacity: 0.55;
 }
 
 .back-message,
@@ -381,7 +385,7 @@ a {
   z-index: 1;
   font-family: 'Caveat', cursive;
   font-weight: 600;
-  font-size: clamp(20px, 3.2vw, 26px);
+  font-size: 24px;
   line-height: 1.3;
   color: var(--ink);
   white-space: pre-wrap;
@@ -404,6 +408,14 @@ a {
   outline: none;
 }
 
+/* At 56 card-units (v1.8 §6) the charm's top edge can reach into the message field's last line —
+   reserve extra bottom room only when a flower is actually present so the no-flower case keeps
+   the full writing height. */
+.postcard-back:has(.back-flower .flower-svg) .back-message,
+.postcard-back:has(.back-flower .flower-svg) .back-message-input {
+  bottom: 34%;
+}
+
 .back-signature-line {
   position: absolute;
   left: 3%;
@@ -413,7 +425,7 @@ a {
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 6px;
   border-bottom: 1px solid var(--card-rule-on-texture);
   padding-bottom: 3px;
 }
@@ -422,7 +434,8 @@ a {
 .back-signature-input {
   font-family: 'Caveat', cursive;
   font-weight: 700;
-  font-size: clamp(16px, 3vw, 28px);
+  font-size: 26px;
+  line-height: 1.3;
   color: var(--ink);
   border: none;
   background: transparent;
@@ -430,7 +443,8 @@ a {
 }
 
 .back-signature-input {
-  width: 9em;
+  width: 10ch;
+  field-sizing: content;
   text-align: right;
 }
 
@@ -446,7 +460,7 @@ a {
 }
 
 .flower-svg {
-  height: clamp(26px, 11vw, 76px);
+  height: clamp(40px, 17.2vw, 118px);
   width: auto;
   display: block;
   transform: rotate(-8deg);

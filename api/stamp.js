@@ -1,5 +1,6 @@
 import zlib from 'node:zlib';
 import * as ed from '@noble/ed25519';
+import { FRONT_ID_RE } from '../js/fronts.js';
 
 // Best-effort in-memory rate limit: resets on cold start — accepted for MVP.
 const rateLimitMap = new Map();
@@ -48,6 +49,9 @@ function validate(body) {
   const flower = body.flower === undefined ? 0 : Number(body.flower);
   if (!Number.isInteger(flower) || flower < 0 || flower > 4) return { error: 'flower' };
 
+  const front = typeof body.front === 'string' ? body.front : '';
+  if (front && (front.length > 16 || !FRONT_ID_RE.test(front))) return { error: 'front' };
+
   const lat = Number(body.lat);
   const lng = Number(body.lng);
   if (!Number.isFinite(lat) || lat < -90 || lat > 90) return { error: 'lat' };
@@ -55,7 +59,7 @@ function validate(body) {
 
   const website = typeof body.website === 'string' ? body.website : '';
 
-  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, flower, lat, lng, website };
+  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, flower, front, lat, lng, website };
 }
 
 async function fetchWithTimeout(url, options, timeoutMs) {
@@ -156,7 +160,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { message, senderName, title, recipientName, ink, stampVariant, flower, lat, lng } = validated;
+  const { message, senderName, title, recipientName, ink, stampVariant, flower, front, lat, lng } = validated;
   const nowMs = Date.now();
 
   const [{ pl, co }, weather] = await Promise.all([
@@ -180,6 +184,7 @@ export default async function handler(req, res) {
   if (ink) payload.ink = ink;
   if (stampVariant) payload.sv = stampVariant;
   if (flower) payload.fl = flower;
+  if (front) payload.fr = front;
   if (weather.wt !== undefined) {
     payload.wt = weather.wt;
     payload.wc = weather.wc;
