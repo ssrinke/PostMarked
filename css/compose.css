@@ -226,8 +226,6 @@
   display: flex;
   justify-content: center;
   gap: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #B49A72;
 }
 
 .stamp-rack-item {
