@@ -1,6 +1,6 @@
 // Single renderer for the card DOM (front + back). Used by compose preview, dev.html, and card.html.
 // All user/derived strings are inserted via textContent only — never innerHTML.
-import { renderStampSVG, renderFrontSVG } from './stamp.js';
+import { buildStampElement, renderFrontSVG } from './stamp.js';
 import { renderPostmarkSVG } from './postmark.js';
 
 // Index 0/1 (sepia, blue-black) are back-compat only — no longer offered in the compose ink tray.
@@ -169,7 +169,7 @@ function buildBack(payload, options = {}) {
   right.appendChild(stampGuide);
 
   const stampWrap = h('div', { className: 'back-stamp' });
-  stampWrap.appendChild(renderStampSVG(payload));
+  stampWrap.appendChild(buildStampElement(payload));
   right.appendChild(stampWrap);
 
   if (payload.d && payload.t) {

@@ -285,70 +285,29 @@ export function normalizeStampVariant(sv) {
   return sv === 1 ? 1 : 0;
 }
 
-// 4:5 stamp, 120x150 viewBox units. `svOverride` lets the stamp rack preview a
-// specific variant regardless of the payload's chosen `sv` (used to render the rack itself).
-// Deep-frame/text colors and place text are still deterministic per-location, drawn from the
-// base seed (not the stamp variant seed) since the stamp art itself is now a fixed image.
-export function renderStampSVG(payload, svOverride) {
+// HTML (not SVG <image>) stamp component (v1.6 §4) — eliminates the intrinsic-size/loading
+// failure class the old SVG <image> mask approach was prone to. `svOverride` lets the stamp
+// rack preview a specific variant regardless of the payload's chosen `sv`.
+export function buildStampElement(payload, svOverride) {
   const sv = normalizeStampVariant(svOverride !== undefined ? svOverride : payload.sv);
-  const seed = deriveSeed(payload.lat, payload.lng);
-  const palette = paletteFor(seed.hueA, seed.hueB);
-  const maskId = `perf-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}-${sv}`;
 
-  const svg = el('svg', { viewBox: '0 0 120 150', xmlns: SVG_NS, class: 'stamp-svg' });
+  const stamp = document.createElement('div');
+  stamp.className = 'stamp';
 
-  const defs = el('defs');
-  const mask = el('mask', { id: maskId, maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: 120, height: 150 });
-  mask.appendChild(el('rect', { x: 0, y: 0, width: 120, height: 150, fill: 'white' }));
-  const spacing = 9;
-  const r = 4;
-  for (let x = spacing / 2; x < 120; x += spacing) {
-    mask.appendChild(el('circle', { cx: x, cy: 0, r, fill: 'black' }));
-    mask.appendChild(el('circle', { cx: x, cy: 150, r, fill: 'black' }));
-  }
-  for (let y = spacing / 2; y < 150; y += spacing) {
-    mask.appendChild(el('circle', { cx: 0, cy: y, r, fill: 'black' }));
-    mask.appendChild(el('circle', { cx: 120, cy: y, r, fill: 'black' }));
-  }
-  defs.appendChild(mask);
-  svg.appendChild(defs);
+  const img = document.createElement('img');
+  img.className = 'stamp__art';
+  img.src = STAMP_IMAGES[sv];
+  img.alt = '';
+  img.loading = 'eager';
+  img.decoding = 'async';
+  stamp.appendChild(img);
 
-  const margin = el('g', { mask: `url(#${maskId})` });
-  margin.appendChild(el('rect', { x: 0, y: 0, width: 120, height: 150, fill: '#fefdfa' }));
-  svg.appendChild(margin);
+  const perf = document.createElement('div');
+  perf.className = 'stamp__perf';
+  perf.setAttribute('aria-hidden', 'true');
+  stamp.appendChild(perf);
 
-  const inset = 8;
-  svg.appendChild(el('rect', {
-    x: inset, y: inset, width: 120 - inset * 2, height: 150 - inset * 2,
-    fill: 'none', stroke: palette.deep, 'stroke-width': 1.5,
-  }));
-
-  const motifInset = inset + 1.5;
-  const motifSize = 120 - motifInset * 2;
-  const motifClipId = `${maskId}-clip`;
-  defs.appendChild(el('clipPath', { id: motifClipId }, [
-    el('rect', { x: motifInset, y: motifInset, width: motifSize, height: motifSize * 0.72 }),
-  ]));
-  const clipGroup = el('g', { 'clip-path': `url(#${motifClipId})` });
-  clipGroup.appendChild(el('image', {
-    href: STAMP_IMAGES[sv],
-    x: motifInset, y: motifInset, width: motifSize, height: motifSize * 0.72,
-    preserveAspectRatio: 'xMidYMid slice',
-  }));
-  svg.appendChild(clipGroup);
-
-  const stripY = motifInset + motifSize * 0.72 + 4;
-  const place = el('text', {
-    x: 60, y: stripY, 'text-anchor': 'middle', class: 'stamp-place',
-  });
-  place.textContent = (payload.pl || '').toUpperCase();
-  svg.appendChild(place);
-
-  const corner = el('text', { x: 120 - inset - 2, y: 150 - inset - 3, 'text-anchor': 'end', class: 'stamp-corner' });
-  corner.textContent = `${Math.abs(payload.lat).toFixed(1)}°${payload.lat >= 0 ? 'N' : 'S'}`;
-  svg.appendChild(corner);
-
-  return svg;
+  return stamp;
 }
 
 // Full-bleed 3:2 front artwork (no lockup text — render-card.js overlays that separately).

@@ -1,5 +1,5 @@
 import { buildCardElement, INK_COLORS } from './render-card.js';
-import { renderStampSVG } from './stamp.js';
+import { buildStampElement } from './stamp.js';
 
 const screens = {
   arrival: document.getElementById('screen-arrival'),
@@ -166,7 +166,7 @@ function buildStampRack() {
     item.setAttribute('aria-checked', String(sv === draft.sv));
     item.setAttribute('aria-label', `Stamp variant ${sv + 1}`);
     item.tabIndex = sv === draft.sv ? 0 : -1;
-    item.appendChild(renderStampSVG(payload, sv));
+    item.appendChild(buildStampElement(payload, sv));
     item.addEventListener('click', () => selectStamp(sv));
     item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.stamp-rack-item', sv, selectStamp));
     container.appendChild(item);
@@ -185,7 +185,7 @@ function applyStampToPreview() {
   const wrap = cardPreview.back.querySelector('.back-stamp');
   if (!wrap) return;
   wrap.innerHTML = '';
-  wrap.appendChild(renderStampSVG({ lat: position.lat, lng: position.lng }, draft.sv));
+  wrap.appendChild(buildStampElement({ lat: position.lat, lng: position.lng }, draft.sv));
 }
 
 // --- Write screen ---
@@ -263,7 +263,6 @@ async function mailIt() {
       place: data.place,
       country: data.country,
       mailedDate: new Date().toISOString(),
-      arrival: data.arrival,
     });
     refreshDrawerLinks();
 
@@ -289,23 +288,22 @@ let lastMailed = null;
 function enterConfirmScreen(data) {
   lastMailed = data;
   document.getElementById('confirmHeadline').textContent = `Stamped and sealed in ${data.place}.`;
-  document.getElementById('stepOpens').textContent = `3 · OPENS ${data.arrivalWeekday.toUpperCase()}`;
   const recipient = draft.to || 'them';
   document.getElementById('stepExplainer').textContent =
-    `You're the postman now. Send ${recipient} the sealed envelope — it's a link, and it cannot be opened before ${data.arrivalWeekday}.`;
+    `You're the postman now. Send ${recipient} the sealed envelope — it's a link they can open right away.`;
 
   const handItBtn = document.getElementById('handItBtn');
-  setupHandItButton(handItBtn, data.place, data.arrivalWeekday, data.cardUrl);
+  setupHandItButton(handItBtn, data.place, data.cardUrl);
 
   showScreen('confirm');
 }
 
-function shareTextFor(place, weekday, cardUrl) {
-  return `I mailed you a postcard from ${place} 📮 It arrives ${weekday} — go look then. ${cardUrl}`;
+function shareTextFor(place, cardUrl) {
+  return `I mailed you a postcard from ${place} 📮 ${cardUrl}`;
 }
 
-function setupHandItButton(button, place, weekday, cardUrl) {
-  const shareText = shareTextFor(place, weekday, cardUrl);
+function setupHandItButton(button, place, cardUrl) {
+  const shareText = shareTextFor(place, cardUrl);
   button.onclick = async () => {
     if (navigator.share) {
       try {
@@ -355,9 +353,8 @@ function renderDrawer() {
     again.type = 'button';
     again.className = 'primary-button';
     again.textContent = 'Hand it over again';
-    const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date(entry.arrival));
     again.addEventListener('click', async () => {
-      const shareText = shareTextFor(entry.place, weekday, entry.cardUrl);
+      const shareText = shareTextFor(entry.place, entry.cardUrl);
       if (navigator.share) {
         try {
           await navigator.share({ text: shareText });

@@ -41,12 +41,10 @@
     <label>Country <input name="co" type="text" value="Portugal" /></label>
     <label>Date <input name="d" type="date" value="2026-07-14" /></label>
     <label>Time <input name="t" type="text" value="18:42" /></label>
-    <label>Arrival offset (days) <input name="offset" type="number" value="3" /></label>
     <textarea name="m" maxlength="300">Wish you were here — the light this evening is unreal.</textarea>
   </form>
   <div class="dev-actions">
     <button type="button" id="renderBtn">Render card</button>
-    <button type="button" id="transitBtn">Preview: in transit</button>
     <button type="button" id="tearBtn">Preview: seal crack + tear</button>
     <button type="button" id="zoomBtn">Preview: zoom overlay</button>
     <button type="button" id="damagedBtn">Preview: damaged</button>
@@ -69,7 +67,7 @@
 
 <script type="module">
 import { buildCardElement } from '/js/render-card.js';
-import { renderStampSVG } from '/js/stamp.js';
+import { buildStampElement } from '/js/stamp.js';
 import { renderPostmarkSVG, weatherWord } from '/js/postmark.js';
 
 const stage = document.getElementById('stage');
@@ -88,7 +86,6 @@ function payloadFromForm() {
     co: fd.get('co'),
     d: fd.get('d'),
     t: fd.get('t'),
-    nb: Date.now() + parseInt(fd.get('offset'), 10) * 86400000,
   };
   const ti = fd.get('ti');
   if (ti) payload.ti = ti;
@@ -112,17 +109,6 @@ function renderCard() {
   const payload = payloadFromForm();
   const { root } = buildCardElement(payload, { editable: false });
   stage.appendChild(root);
-}
-
-function renderTransit() {
-  stage.innerHTML = '';
-  stateLabel.textContent = 'in-transit (preview only, see card.js for real markup)';
-  const payload = payloadFromForm();
-  const div = document.createElement('div');
-  div.style.color = 'var(--ink)';
-  div.style.fontFamily = 'Courier Prime, monospace';
-  div.textContent = `Mailed from ${payload.pl}${payload.co ? ', ' + payload.co : ''} on ${payload.d} · arriving ${new Date(payload.nb).toDateString()}`;
-  stage.appendChild(div);
 }
 
 function renderTear() {
@@ -169,7 +155,7 @@ function renderZoomPreview() {
   const postmarkWrap = document.getElementById('zoomPostmarkWrap');
   const captionLines = document.getElementById('zoomCaptionLines');
   stampWrap.innerHTML = '';
-  stampWrap.appendChild(renderStampSVG(payload));
+  stampWrap.appendChild(buildStampElement(payload));
   postmarkWrap.innerHTML = '';
   if (payload.d && payload.t) postmarkWrap.appendChild(renderPostmarkSVG(payload));
   const place = payload.co ? `${payload.pl}, ${payload.co}` : payload.pl;
@@ -199,7 +185,6 @@ function renderDamaged() {
 }
 
 document.getElementById('renderBtn').addEventListener('click', renderCard);
-document.getElementById('transitBtn').addEventListener('click', renderTransit);
 document.getElementById('tearBtn').addEventListener('click', renderTear);
 document.getElementById('zoomBtn').addEventListener('click', renderZoomPreview);
 document.getElementById('damagedBtn').addEventListener('click', renderDamaged);
@@ -222,7 +207,7 @@ document.getElementById('rackBtn').addEventListener('click', () => {
   for (let sv = 0; sv < 2; sv++) {
     const wrap = document.createElement('div');
     wrap.style.width = '90px';
-    wrap.appendChild(renderStampSVG(payload, sv));
+    wrap.appendChild(buildStampElement(payload, sv));
     row.appendChild(wrap);
   }
   stage.appendChild(row);

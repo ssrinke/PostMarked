@@ -1,14 +1,13 @@
 import { verifyAndDecode } from './verify.js';
 import { buildCardElement, INK_COLORS } from './render-card.js';
 import { renderPostmarkSVG } from './postmark.js';
-import { renderStampSVG } from './stamp.js';
+import { buildStampElement } from './stamp.js';
 import { fnv1a, mulberry32 } from './stamp.js';
 import { weatherWord } from './postmark.js';
 
 const stage = document.getElementById('stage');
 const states = {
   damaged: document.getElementById('state-damaged'),
-  transit: document.getElementById('state-transit'),
   arrival: document.getElementById('state-arrival'),
 };
 
@@ -20,30 +19,14 @@ function showState(name) {
 }
 
 const LONG_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function longDateFromISO(d) {
   const [y, m, day] = d.split('-').map(Number);
   return `${LONG_MONTHS[m - 1]} ${day}, ${y}`;
 }
 
-function weekdayLongDate(ms) {
-  const dt = new Date(ms);
-  return `${WEEKDAYS[dt.getDay()]}, ${LONG_MONTHS[dt.getMonth()]} ${dt.getDate()}`;
-}
-
 function renderDamaged() {
   showState('damaged');
-}
-
-function renderTransit(payload) {
-  const el = states.transit;
-  el.querySelector('.transit-postmark-ghost').innerHTML = '';
-  el.querySelector('.transit-postmark-ghost').appendChild(renderPostmarkSVG(payload));
-  const place = payload.co ? `${payload.pl}, ${payload.co}` : payload.pl;
-  el.querySelector('.transit-line').textContent =
-    `Mailed from ${place} on ${longDateFromISO(payload.d)} · arriving ${weekdayLongDate(payload.nb)}`;
-  showState('transit');
 }
 
 // Deterministic jagged tear edge, seeded from the fragment — same card tears the same way every time (§4).
@@ -89,7 +72,7 @@ function setupZoomOverlay(payload) {
   function open(triggerEl) {
     lastFocused = triggerEl;
     stampWrap.innerHTML = '';
-    stampWrap.appendChild(renderStampSVG(payload));
+    stampWrap.appendChild(buildStampElement(payload));
     postmarkWrap.innerHTML = '';
     if (payload.d && payload.t) postmarkWrap.appendChild(renderPostmarkSVG(payload));
     buildCaptionLines();
@@ -179,6 +162,10 @@ function renderArrival(payload, fragment) {
     toNameEl.textContent = '';
   }
 
+  const metaEl = document.getElementById('arrivalMeta');
+  const place = payload.co ? `${payload.pl}, ${payload.co}` : payload.pl;
+  metaEl.textContent = `Mailed from ${place} on ${longDateFromISO(payload.d)}`;
+
   const zoom = setupZoomOverlay(payload);
 
   const { root, card } = buildCardElement(payload, {
@@ -215,6 +202,7 @@ function renderArrival(payload, fragment) {
     envelope.style.clipPath = buildTearClip(fragment);
     breakSealButton.classList.add('is-hidden');
     cardWrap.classList.add('is-visible', 'is-settled');
+    sceneEl.classList.add('is-open');
     return;
   }
 
@@ -229,6 +217,7 @@ function renderArrival(payload, fragment) {
     if (prefersReducedMotion) {
       envelope.classList.add('is-torn');
       cardWrap.classList.add('is-visible');
+      sceneEl.classList.add('is-open');
       return;
     }
 
@@ -239,6 +228,7 @@ function renderArrival(payload, fragment) {
       setTimeout(() => {
         envelope.classList.add('is-torn');
         cardWrap.classList.add('is-visible');
+        sceneEl.classList.add('is-open');
         setTimeout(() => {
           cardWrap.classList.add('is-settling');
         }, 0);
@@ -268,25 +258,7 @@ async function main() {
     renderDamaged();
     return;
   }
-
-  function evaluate() {
-    if (Date.now() < payload.nb) {
-      renderTransit(payload);
-      return false;
-    }
-    renderArrival(payload, fragment);
-    return true;
-  }
-
-  const arrived = evaluate();
-  if (!arrived) {
-    const interval = setInterval(() => {
-      if (Date.now() >= payload.nb) {
-        clearInterval(interval);
-        renderArrival(payload, fragment);
-      }
-    }, 30000);
-  }
+  renderArrival(payload, fragment);
 }
 
 main();

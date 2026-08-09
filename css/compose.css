@@ -157,17 +157,23 @@
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.tray-label {
-  font-family: 'Courier Prime', monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-  margin-bottom: 14px;
-  text-align: center;
+/* Shared tray section component (v1.6 §5) — used by both the ink tray and the stamp rack so
+   they cannot diverge. */
+:root {
+  --section-gap: 28px;
 }
 
-.ink-tray {
+@media (max-width: 480px) {
+  :root {
+    --section-gap: 22px;
+  }
+}
+
+#screen-write.is-active {
+  gap: var(--section-gap);
+}
+
+.tray-section {
   width: 92vw;
   max-width: 630px;
   display: flex;
@@ -175,15 +181,25 @@
   align-items: center;
 }
 
+.tray-section-header {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6B5B45;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
 .ink-dots {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .ink-dot {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -194,8 +210,8 @@
 
 .ink-dot::before {
   content: '';
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--dot-color);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
@@ -206,35 +222,24 @@
   box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink), 0 1px 2px rgb(0 0 0 / 0.2);
 }
 
-.stamp-rack {
-  width: 92vw;
-  max-width: 630px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 8px;
-}
-
 .stamp-rack-items {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
   padding-bottom: 10px;
   border-bottom: 2px solid #B49A72;
 }
 
 .stamp-rack-item {
-  width: 72px;
+  width: 76px;
   border: none;
   background: none;
   padding: 0;
   transition: transform 150ms ease;
 }
 
-.stamp-rack-item svg {
+.stamp-rack-item .stamp {
   width: 100%;
-  height: auto;
-  display: block;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
@@ -242,7 +247,7 @@
   transform: translateY(-4px);
 }
 
-.stamp-rack-item[aria-checked="true"] svg {
+.stamp-rack-item[aria-checked="true"] .stamp {
   outline: 2px solid var(--seal);
   outline-offset: 2px;
 }

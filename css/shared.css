@@ -1,9 +1,10 @@
 /* Design tokens (§9.1) and shared postcard construction (§9.3), used by both pages. */
 
 :root {
-  --gingham-base: #F5F1E2;
-  --gingham-line: #B9CDE4;
-  --gingham-tile: 26px;
+  --desk: #E6D9B8;
+  --desk-edge: #D9C89E;
+  --desk-mottle: #DECFA9;
+  --desk-decor-color: #A8946E;
   --paper: #FFFBF0;
   --paper-shade: #EFE6D3;
   --ink: #3A3128;
@@ -18,12 +19,8 @@
   --card-rule-on-texture: rgb(138 111 74 / 0.3);
   --ink-soft-on-texture: #675C4C;
   --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-}
-
-@media (max-width: 480px) {
-  :root {
-    --gingham-tile: 20px;
-  }
+  --desk-mottle-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000'%3E%3Cfilter id='m'%3E%3CfeGaussianBlur stdDeviation='12'/%3E%3C/filter%3E%3Cg filter='url(%23m)'%3E%3Cellipse cx='150' cy='120' rx='220' ry='140' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='1450' cy='150' rx='240' ry='150' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='180' cy='880' rx='230' ry='150' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='1420' cy='860' rx='210' ry='140' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='60' cy='500' rx='160' ry='260' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='1540' cy='520' rx='170' ry='270' fill='%23DECFA9' opacity='0.25'/%3E%3C/g%3E%3C/svg%3E");
+  --stamp-perf-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Crect width='120' height='150' fill='white'/%3E%3Cg fill='black'%3E%3Ccircle cx='4.5' cy='0' r='4'/%3E%3Ccircle cx='4.5' cy='150' r='4'/%3E%3Ccircle cx='13.5' cy='0' r='4'/%3E%3Ccircle cx='13.5' cy='150' r='4'/%3E%3Ccircle cx='22.5' cy='0' r='4'/%3E%3Ccircle cx='22.5' cy='150' r='4'/%3E%3Ccircle cx='31.5' cy='0' r='4'/%3E%3Ccircle cx='31.5' cy='150' r='4'/%3E%3Ccircle cx='40.5' cy='0' r='4'/%3E%3Ccircle cx='40.5' cy='150' r='4'/%3E%3Ccircle cx='49.5' cy='0' r='4'/%3E%3Ccircle cx='49.5' cy='150' r='4'/%3E%3Ccircle cx='58.5' cy='0' r='4'/%3E%3Ccircle cx='58.5' cy='150' r='4'/%3E%3Ccircle cx='67.5' cy='0' r='4'/%3E%3Ccircle cx='67.5' cy='150' r='4'/%3E%3Ccircle cx='76.5' cy='0' r='4'/%3E%3Ccircle cx='76.5' cy='150' r='4'/%3E%3Ccircle cx='85.5' cy='0' r='4'/%3E%3Ccircle cx='85.5' cy='150' r='4'/%3E%3Ccircle cx='94.5' cy='0' r='4'/%3E%3Ccircle cx='94.5' cy='150' r='4'/%3E%3Ccircle cx='103.5' cy='0' r='4'/%3E%3Ccircle cx='103.5' cy='150' r='4'/%3E%3Ccircle cx='112.5' cy='0' r='4'/%3E%3Ccircle cx='112.5' cy='150' r='4'/%3E%3Ccircle cx='0' cy='4.5' r='4'/%3E%3Ccircle cx='120' cy='4.5' r='4'/%3E%3Ccircle cx='0' cy='13.5' r='4'/%3E%3Ccircle cx='120' cy='13.5' r='4'/%3E%3Ccircle cx='0' cy='22.5' r='4'/%3E%3Ccircle cx='120' cy='22.5' r='4'/%3E%3Ccircle cx='0' cy='31.5' r='4'/%3E%3Ccircle cx='120' cy='31.5' r='4'/%3E%3Ccircle cx='0' cy='40.5' r='4'/%3E%3Ccircle cx='120' cy='40.5' r='4'/%3E%3Ccircle cx='0' cy='49.5' r='4'/%3E%3Ccircle cx='120' cy='49.5' r='4'/%3E%3Ccircle cx='0' cy='58.5' r='4'/%3E%3Ccircle cx='120' cy='58.5' r='4'/%3E%3Ccircle cx='0' cy='67.5' r='4'/%3E%3Ccircle cx='120' cy='67.5' r='4'/%3E%3Ccircle cx='0' cy='76.5' r='4'/%3E%3Ccircle cx='120' cy='76.5' r='4'/%3E%3Ccircle cx='0' cy='85.5' r='4'/%3E%3Ccircle cx='120' cy='85.5' r='4'/%3E%3Ccircle cx='0' cy='94.5' r='4'/%3E%3Ccircle cx='120' cy='94.5' r='4'/%3E%3Ccircle cx='0' cy='103.5' r='4'/%3E%3Ccircle cx='120' cy='103.5' r='4'/%3E%3Ccircle cx='0' cy='112.5' r='4'/%3E%3Ccircle cx='120' cy='112.5' r='4'/%3E%3Ccircle cx='0' cy='121.5' r='4'/%3E%3Ccircle cx='120' cy='121.5' r='4'/%3E%3Ccircle cx='0' cy='130.5' r='4'/%3E%3Ccircle cx='120' cy='130.5' r='4'/%3E%3Ccircle cx='0' cy='139.5' r='4'/%3E%3Ccircle cx='120' cy='139.5' r='4'/%3E%3Ccircle cx='0' cy='148.5' r='4'/%3E%3Ccircle cx='120' cy='148.5' r='4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 * {
@@ -42,22 +39,9 @@ body {
   color: var(--ink);
   position: relative;
   background:
-    repeating-linear-gradient(
-      to right,
-      rgb(185 205 228 / 0.5) 0,
-      rgb(185 205 228 / 0.5) calc(var(--gingham-tile) / 2),
-      transparent calc(var(--gingham-tile) / 2),
-      transparent var(--gingham-tile)
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      rgb(185 205 228 / 0.5) 0,
-      rgb(185 205 228 / 0.5) calc(var(--gingham-tile) / 2),
-      transparent calc(var(--gingham-tile) / 2),
-      transparent var(--gingham-tile)
-    ),
-    var(--gingham-base);
-  background-color: var(--gingham-base);
+    var(--desk-mottle-svg) center / cover no-repeat,
+    radial-gradient(ellipse at 50% 40%, var(--desk) 0%, var(--desk-edge) 100%);
+  background-color: var(--desk);
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -109,13 +93,119 @@ a {
   white-space: nowrap;
 }
 
+/* Desk scene decoration v2 (§2) */
+
+.desk-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.desk-decor svg {
+  position: absolute;
+  display: block;
+}
+
+.decor-stamp-a {
+  top: 3%;
+  left: 2%;
+  width: 90px;
+  height: 108px;
+  opacity: 0.06;
+}
+
+.decor-stamp-b {
+  top: 5%;
+  left: 5%;
+  width: 90px;
+  height: 108px;
+  opacity: 0.06;
+}
+
+.decor-parlabel {
+  top: 5%;
+  right: 8%;
+  width: 110px;
+  height: 24px;
+  opacity: 0.06;
+}
+
+.decor-chevrons {
+  top: 11%;
+  right: 5%;
+  width: 90px;
+  height: 20px;
+  opacity: 0.06;
+}
+
+.decor-inkpen {
+  top: 42%;
+  right: 1.5%;
+  width: 80px;
+  height: 88px;
+  opacity: 0.06;
+}
+
+.decor-twine {
+  bottom: 4%;
+  right: 4%;
+  width: 120px;
+  height: 120px;
+  opacity: 0.06;
+}
+
+.decor-coffee {
+  bottom: 5%;
+  left: 4%;
+  width: 92px;
+  height: 92px;
+  opacity: 0.06;
+}
+
+.decor-flower {
+  bottom: 6%;
+  left: 15%;
+  width: 50px;
+  height: 58px;
+  opacity: 0.06;
+}
+
+.decor-postmark {
+  top: 44%;
+  left: 1.5%;
+  width: 90px;
+  height: 90px;
+  opacity: 0.05;
+}
+
+.decor-stars {
+  top: 2%;
+  left: 40%;
+  width: 150px;
+  height: 28px;
+  opacity: 0.04;
+}
+
+@media (max-width: 480px) {
+  .decor-stamp-b,
+  .decor-parlabel,
+  .decor-inkpen,
+  .decor-twine,
+  .decor-flower,
+  .decor-postmark,
+  .decor-stars {
+    display: none;
+  }
+}
+
 /* Postcard construction (§9.3) */
 
 .postcard-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
 }
 
@@ -369,24 +459,41 @@ a {
   max-width: 110px;
 }
 
-.back-stamp svg {
+.back-stamp .stamp {
   width: 100%;
-  height: auto;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
 }
 
-.stamp-place {
-  font-family: 'Courier Prime', monospace;
-  font-size: 5px;
-  letter-spacing: 0.08em;
-  fill: var(--ink-soft);
+/* Stamp component (v1.6 §4) — HTML/img based, used in the compose rack, card back, and zoom
+   overlay. White paper base + 7% inset margin; perforation cut via a shared SVG mask so the
+   punched-edge geometry scales identically at every rendered size. */
+.stamp {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: #FFFDF6;
+  border-radius: 1px;
+  -webkit-mask-image: var(--stamp-perf-mask);
+  mask-image: var(--stamp-perf-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
-.stamp-corner {
-  font-family: 'Courier Prime', monospace;
-  font-size: 5px;
-  fill: var(--ink-soft);
+.stamp__art {
+  position: absolute;
+  inset: 7%;
+  width: 86%;
+  height: 86%;
+  object-fit: cover;
+  display: block;
+}
+
+.stamp__perf {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .back-postmark {
