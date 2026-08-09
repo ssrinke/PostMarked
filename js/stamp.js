@@ -311,7 +311,7 @@ export function buildStampElement(payload, svOverride) {
 }
 
 // Full-bleed 3:2 front artwork (no lockup text — render-card.js overlays that separately).
-// No grain filter here: the paper-card.jpg texture overlay (render-card.js) provides it (v1.5a §3).
+// No grain filter here: the paper-card-v2.jpg texture overlay (render-card.js) provides it (v1.5a §3).
 export function renderFrontSVG(payload) {
   const seed = deriveSeed(payload.lat, payload.lng);
   const palette = paletteFor(seed.hueA, seed.hueB);

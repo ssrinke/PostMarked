@@ -106,7 +106,7 @@
 .envelope-texture {
   position: absolute;
   inset: 0;
-  background: url('/assets/paper-card.jpg') center / cover;
+  background: url('/assets/paper-card-v2.jpg') center / cover;
   mix-blend-mode: multiply;
   opacity: 0.5;
   pointer-events: none;
@@ -384,11 +384,11 @@
 
 .stamp-cluster-hit {
   position: absolute;
-  top: 14%;
-  right: 1%;
-  width: 60%;
-  height: 66%;
-  z-index: 2;
+  top: 7%;
+  right: 0.5%;
+  width: 24%;
+  height: 32%;
+  z-index: 3;
 }
 
 @keyframes stamp-pulse {

@@ -252,6 +252,39 @@
   outline-offset: 2px;
 }
 
+/* Pressed-flower tray (v1.7 §5) */
+
+.flower-tray-items {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.flower-tray-item {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease;
+}
+
+.flower-tray-item .flower-svg {
+  height: 32px;
+  width: auto;
+  transform: none;
+}
+
+.flower-tray-item[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--seal);
+  transform: translateY(-2px);
+}
+
 .write-card-preview {
   width: 92vw;
   max-width: 630px;

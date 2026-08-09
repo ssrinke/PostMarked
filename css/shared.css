@@ -15,7 +15,7 @@
   --airmail-blue: #2E5E8C;
   --blush: #E9B9A2;
   --seal: #A3372B;
-  --card-texture-fallback: #EFE0BE;
+  --card-texture-fallback: #EFDFC4;
   --card-rule-on-texture: rgb(138 111 74 / 0.3);
   --ink-soft-on-texture: #675C4C;
   --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
@@ -263,9 +263,9 @@ a {
 .front-texture-overlay {
   position: absolute;
   inset: 0;
-  background: url('/assets/paper-card.jpg') center / cover;
+  background: url('/assets/paper-card-v2.jpg') center / cover;
   mix-blend-mode: multiply;
-  opacity: 0.3;
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -305,9 +305,9 @@ a {
 
 .postcard-back {
   transform: rotateY(180deg);
-  display: grid;
-  grid-template-columns: 55% 1px 45%;
-  background: var(--card-texture-fallback) url('/assets/paper-card.jpg') center / cover no-repeat;
+  position: absolute;
+  inset: 0;
+  background: var(--card-texture-fallback) url('/assets/paper-card-v2.jpg') center / cover no-repeat;
   border: 1px solid transparent;
   border-image: repeating-linear-gradient(
       -45deg,
@@ -319,11 +319,19 @@ a {
     10;
 }
 
-.back-left {
-  padding: 6% 5%;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+/* Card back v2 (v1.7 §4) — single full-width writing field, no divided columns. */
+
+.back-heading {
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Courier Prime', monospace;
+  font-size: clamp(10px, 1.6vw, 14px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft-on-texture);
+  text-align: center;
 }
 
 .back-line-label {
@@ -337,18 +345,21 @@ a {
 }
 
 .back-to-line {
+  position: absolute;
+  top: 9%;
+  left: 4%;
+  right: 24%;
   display: flex;
   align-items: baseline;
   border-bottom: 1px solid var(--card-rule-on-texture);
-  padding-bottom: 3px;
-  margin-bottom: 6px;
+  padding-bottom: 2px;
 }
 
 .back-to-name,
 .back-to-input {
   font-family: 'Caveat', cursive;
   font-weight: 600;
-  font-size: clamp(15px, 2.4vw, 20px);
+  font-size: clamp(14px, 2.2vw, 20px);
   color: var(--ink);
   flex: 1;
   min-width: 0;
@@ -362,38 +373,49 @@ a {
 
 .back-message,
 .back-message-input {
+  position: absolute;
+  top: 17%;
+  left: 3%;
+  right: 3%;
+  bottom: 6%;
+  z-index: 1;
   font-family: 'Caveat', cursive;
   font-weight: 600;
-  font-size: clamp(16px, 2.6vw, 24px);
-  line-height: 1.5;
+  font-size: clamp(20px, 3.2vw, 26px);
+  line-height: 1.3;
   color: var(--ink);
   white-space: pre-wrap;
-  transform: rotate(-0.4deg);
-  flex: 1;
+  overflow-y: auto;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
-    transparent calc(1.5em - 1px),
-    var(--card-rule-on-texture) calc(1.5em - 1px),
-    var(--card-rule-on-texture) 1.5em
+    transparent calc(1.3em - 1px),
+    var(--card-rule-on-texture) calc(1.3em - 1px),
+    var(--card-rule-on-texture) 1.3em
   );
-  background-size: 100% 1.5em;
+  background-size: 100% 1.3em;
 }
 
 .back-message-input {
   resize: none;
   border: none;
   background-color: transparent;
-  width: 100%;
+  width: auto;
   outline: none;
 }
 
 .back-signature-line {
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  bottom: 3%;
+  z-index: 2;
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 4px;
   border-bottom: 1px solid var(--card-rule-on-texture);
   padding-bottom: 3px;
-  margin-top: 8px;
 }
 
 .back-signature,
@@ -405,35 +427,39 @@ a {
   border: none;
   background: transparent;
   outline: none;
-  flex: 1;
-  min-width: 0;
 }
 
-.back-rule {
-  background: var(--paper-shade);
+.back-signature-input {
+  width: 9em;
+  text-align: right;
 }
 
-.back-right {
-  position: relative;
-  padding: 5%;
+/* Pressed-flower charm (v1.7 §5) — sits immediately left of the From label, its own base on the
+   signature rule; the tall SVG is allowed to grow the (absolutely positioned) row upward. */
+.back-flower {
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
 }
 
-.back-heading {
-  font-family: 'Courier Prime', monospace;
-  font-size: clamp(9px, 1.4vw, 12px);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-soft-on-texture);
+.back-flower:empty {
+  display: none;
+}
+
+.flower-svg {
+  height: clamp(26px, 11vw, 76px);
+  width: auto;
+  display: block;
+  transform: rotate(-8deg);
+  transform-origin: bottom center;
 }
 
 .stamp-guide {
   position: absolute;
-  top: 14%;
-  right: 4%;
-  width: 33%;
-  max-width: 122px;
+  top: 9%;
+  right: 1.8%;
+  width: 12.5%;
+  max-width: 102px;
+  z-index: 2;
   aspect-ratio: 4 / 5;
   border: 1px dashed #8A6F4A;
   border-radius: 2px;
@@ -453,10 +479,11 @@ a {
 
 .back-stamp {
   position: absolute;
-  top: 16%;
-  right: 5%;
-  width: 30%;
-  max-width: 110px;
+  top: 10.5%;
+  right: 2.4%;
+  width: 11%;
+  max-width: 92px;
+  z-index: 2;
 }
 
 .back-stamp .stamp {
@@ -498,33 +525,17 @@ a {
 
 .back-postmark {
   position: absolute;
-  top: 31%;
-  right: 1%;
-  width: 50%;
-  max-width: 185px;
+  top: 17%;
+  right: 0.7%;
+  width: 19%;
+  max-width: 156px;
+  z-index: 2;
 }
 
 .back-postmark svg {
   width: 100%;
   height: auto;
   display: block;
-}
-
-/* Journaling ephemera cluster — fixed, below the stamp/postmark, clear of the tap target (v1.5b §5) */
-.back-ephemera {
-  position: absolute;
-  bottom: 1%;
-  right: 3%;
-  width: 30%;
-  max-width: 100px;
-  pointer-events: none;
-}
-
-.back-ephemera-svg {
-  width: 100%;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgb(90 70 40 / 0.2));
 }
 
 .postmark-arc-text,

@@ -45,6 +45,9 @@ function validate(body) {
   const stampVariant = body.stampVariant === undefined ? 0 : Number(body.stampVariant);
   if (!Number.isInteger(stampVariant) || stampVariant < 0 || stampVariant > 2) return { error: 'stampVariant' };
 
+  const flower = body.flower === undefined ? 0 : Number(body.flower);
+  if (!Number.isInteger(flower) || flower < 0 || flower > 4) return { error: 'flower' };
+
   const lat = Number(body.lat);
   const lng = Number(body.lng);
   if (!Number.isFinite(lat) || lat < -90 || lat > 90) return { error: 'lat' };
@@ -52,7 +55,7 @@ function validate(body) {
 
   const website = typeof body.website === 'string' ? body.website : '';
 
-  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, lat, lng, website };
+  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, flower, lat, lng, website };
 }
 
 async function fetchWithTimeout(url, options, timeoutMs) {
@@ -153,7 +156,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { message, senderName, title, recipientName, ink, stampVariant, lat, lng } = validated;
+  const { message, senderName, title, recipientName, ink, stampVariant, flower, lat, lng } = validated;
   const nowMs = Date.now();
 
   const [{ pl, co }, weather] = await Promise.all([
@@ -176,6 +179,7 @@ export default async function handler(req, res) {
   if (recipientName) payload.to = recipientName;
   if (ink) payload.ink = ink;
   if (stampVariant) payload.sv = stampVariant;
+  if (flower) payload.fl = flower;
   if (weather.wt !== undefined) {
     payload.wt = weather.wt;
     payload.wc = weather.wc;

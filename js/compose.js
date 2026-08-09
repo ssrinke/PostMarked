@@ -1,5 +1,6 @@
 import { buildCardElement, INK_COLORS } from './render-card.js';
 import { buildStampElement } from './stamp.js';
+import { renderFlowerSVG, renderFlowerNoneIcon } from './flower.js';
 
 const screens = {
   arrival: document.getElementById('screen-arrival'),
@@ -14,7 +15,7 @@ const SENT_KEY = 'postmarked.sent.v1';
 const POSITION_MAX_AGE_MS = 5 * 60 * 1000;
 
 let position = null; // { lat, lng, timestamp }
-let draft = { m: '', s: '', to: '', ink: 2, sv: 0 };
+let draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0 };
 let cardPreview = null; // { card, front, back }
 
 // Compose ink tray offers only green (index 2) and red (index 3) into INK_COLORS;
@@ -188,13 +189,50 @@ function applyStampToPreview() {
   wrap.appendChild(buildStampElement({ lat: position.lat, lng: position.lng }, draft.sv));
 }
 
+// --- Pressed-flower tray (v1.7 §5) ---
+
+function buildFlowerTray() {
+  const container = document.getElementById('flowerTrayItems');
+  container.innerHTML = '';
+  for (let fl = 0; fl <= 4; fl++) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'flower-tray-item';
+    item.setAttribute('role', 'radio');
+    item.setAttribute('aria-checked', String(fl === draft.fl));
+    item.setAttribute('aria-label', fl === 0 ? 'No pressed flower' : `Pressed flower ${fl}`);
+    item.tabIndex = fl === draft.fl ? 0 : -1;
+    item.appendChild(fl === 0 ? renderFlowerNoneIcon() : renderFlowerSVG(fl));
+    item.addEventListener('click', () => selectFlower(fl));
+    item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.flower-tray-item', fl, selectFlower));
+    container.appendChild(item);
+  }
+}
+
+function selectFlower(fl) {
+  draft.fl = fl;
+  buildFlowerTray();
+  document.getElementById('flowerTrayItems').querySelectorAll('.flower-tray-item')[fl]?.focus();
+  applyFlowerToPreview();
+}
+
+function applyFlowerToPreview() {
+  if (!cardPreview) return;
+  const wrap = cardPreview.back.querySelector('.back-flower');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const svg = renderFlowerSVG(draft.fl);
+  if (svg) wrap.appendChild(svg);
+}
+
 // --- Write screen ---
 
 function enterWriteScreen() {
   showScreen('write');
-  draft = { m: '', s: '', to: '', ink: 2, sv: 0 };
+  draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0 };
   buildInkTray();
   buildStampRack();
+  buildFlowerTray();
   renderCardPreview();
   updateCounter();
   updateApproxCaption();
@@ -203,7 +241,7 @@ function enterWriteScreen() {
 function renderCardPreview() {
   const container = document.getElementById('writeCardPreview');
   container.innerHTML = '';
-  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, lat: position.lat, lng: position.lng };
+  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, fl: draft.fl, lat: position.lat, lng: position.lng };
   cardPreview = buildCardElement(payload, {
     editable: true,
     onMessageInput: (value) => {
@@ -246,6 +284,7 @@ async function mailIt() {
         recipientName: draft.to,
         ink: draft.ink,
         stampVariant: draft.sv,
+        flower: draft.fl,
         lat: position.lat,
         lng: position.lng,
         website: '',

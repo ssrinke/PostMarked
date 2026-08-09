@@ -34,6 +34,7 @@
     <label>To <input name="to" type="text" maxlength="30" value="Priya" /></label>
     <label>Ink (0-3) <input name="ink" type="number" min="0" max="3" value="0" /></label>
     <label>Stamp variant (0-1, 2=old→falls back to 0) <input name="sv" type="number" min="0" max="2" value="0" /></label>
+    <label>Flower (0=none, 1-4) <input name="fl" type="number" min="0" max="4" value="0" /></label>
     <label>Sender <input name="s" type="text" maxlength="40" value="Sanjana" /></label>
     <label>Weather code <input name="wc" type="number" value="0" /></label>
     <label>Temp °C <input name="wt" type="number" value="34" /></label>
@@ -95,6 +96,8 @@ function payloadFromForm() {
   if (ink) payload.ink = ink;
   const sv = parseInt(fd.get('sv'), 10);
   if (sv) payload.sv = sv;
+  const fl = parseInt(fd.get('fl'), 10);
+  if (fl) payload.fl = fl;
   const wt = fd.get('wt');
   if (wt !== '') {
     payload.wt = parseInt(wt, 10);
