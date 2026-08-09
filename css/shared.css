@@ -1,8 +1,10 @@
 /* Design tokens (§9.1) and shared postcard construction (§9.3), used by both pages. */
 
 :root {
-  --desk: #F0E4CE;
-  --desk-edge: #E4D4B8;
+  --desk: #F2EAD9;
+  --desk-edge: #E8DCC2;
+  --desk-mottle: #E6D8B8;
+  --desk-decor-color: #B9A47E;
   --paper: #FFFBF0;
   --paper-shade: #EFE6D3;
   --ink: #3A3128;
@@ -12,7 +14,11 @@
   --airmail-blue: #2E5E8C;
   --blush: #E9B9A2;
   --seal: #A3372B;
-  --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  --card-texture-fallback: #EFE0BE;
+  --card-rule-on-texture: rgb(138 111 74 / 0.3);
+  --ink-soft-on-texture: #675C4C;
+  --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  --desk-mottle-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000'%3E%3Cfilter id='m'%3E%3CfeGaussianBlur stdDeviation='12'/%3E%3C/filter%3E%3Cg filter='url(%23m)'%3E%3Cellipse cx='150' cy='120' rx='220' ry='140' fill='%23E6D8B8' opacity='0.28'/%3E%3Cellipse cx='1450' cy='150' rx='240' ry='150' fill='%23E6D8B8' opacity='0.32'/%3E%3Cellipse cx='180' cy='880' rx='230' ry='150' fill='%23E6D8B8' opacity='0.25'/%3E%3Cellipse cx='1420' cy='860' rx='210' ry='140' fill='%23E6D8B8' opacity='0.34'/%3E%3Cellipse cx='60' cy='500' rx='160' ry='260' fill='%23E6D8B8' opacity='0.3'/%3E%3Cellipse cx='1540' cy='520' rx='170' ry='270' fill='%23E6D8B8' opacity='0.27'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 * {
@@ -31,6 +37,7 @@ body {
   color: var(--ink);
   position: relative;
   background:
+    var(--desk-mottle-svg) center / cover no-repeat,
     radial-gradient(ellipse at 50% 40%, var(--desk) 0%, var(--desk-edge) 100%);
   background-color: var(--desk);
   min-height: 100vh;
@@ -50,7 +57,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(58 49 40 / 0.08) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgb(58 49 40 / 0.05) 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -103,7 +110,7 @@ a {
   left: 2%;
   width: 90px;
   height: 108px;
-  opacity: 0.07;
+  opacity: 0.06;
 }
 
 .decor-stamp-b {
@@ -111,7 +118,7 @@ a {
   left: 5%;
   width: 90px;
   height: 108px;
-  opacity: 0.07;
+  opacity: 0.06;
 }
 
 .decor-parlabel {
@@ -143,7 +150,7 @@ a {
   right: 4%;
   width: 120px;
   height: 120px;
-  opacity: 0.07;
+  opacity: 0.06;
 }
 
 .decor-coffee {
@@ -151,7 +158,7 @@ a {
   left: 4%;
   width: 92px;
   height: 92px;
-  opacity: 0.08;
+  opacity: 0.06;
 }
 
 .decor-flower {
@@ -251,6 +258,15 @@ a {
   height: 100%;
 }
 
+.front-texture-overlay {
+  position: absolute;
+  inset: 0;
+  background: url('/assets/paper-card.jpg') center / cover;
+  mix-blend-mode: multiply;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 .front-lockup {
   position: absolute;
   left: 6%;
@@ -289,7 +305,7 @@ a {
   transform: rotateY(180deg);
   display: grid;
   grid-template-columns: 55% 1px 45%;
-  background: var(--paper);
+  background: var(--card-texture-fallback) url('/assets/paper-card.jpg') center / cover no-repeat;
   border: 1px solid transparent;
   border-image: repeating-linear-gradient(
       -45deg,
@@ -321,7 +337,7 @@ a {
 .back-to-line {
   display: flex;
   align-items: baseline;
-  border-bottom: 1px solid #D8CCB4;
+  border-bottom: 1px solid var(--card-rule-on-texture);
   padding-bottom: 3px;
   margin-bottom: 6px;
 }
@@ -356,8 +372,8 @@ a {
     to bottom,
     transparent 0,
     transparent calc(1.5em - 1px),
-    #D8CCB4 calc(1.5em - 1px),
-    #D8CCB4 1.5em
+    var(--card-rule-on-texture) calc(1.5em - 1px),
+    var(--card-rule-on-texture) 1.5em
   );
   background-size: 100% 1.5em;
 }
@@ -373,7 +389,7 @@ a {
 .back-signature-line {
   display: flex;
   align-items: baseline;
-  border-bottom: 1px solid #D8CCB4;
+  border-bottom: 1px solid var(--card-rule-on-texture);
   padding-bottom: 3px;
   margin-top: 8px;
 }
@@ -407,23 +423,7 @@ a {
   font-size: clamp(9px, 1.4vw, 12px);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
-.par-avion-label {
-  display: inline-flex;
-  align-self: flex-start;
-  align-items: center;
-  margin-top: 8px;
-  padding: 3px 10px;
-  border: 1.5px solid var(--airmail-blue);
-  border-radius: 50%/50%;
-  background: var(--paper);
-  color: var(--airmail-blue);
-  font-family: 'Courier Prime', monospace;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  color: var(--ink-soft-on-texture);
 }
 
 .stamp-guide {
@@ -433,7 +433,7 @@ a {
   width: 33%;
   max-width: 122px;
   aspect-ratio: 4 / 5;
-  border: 1px dashed #C9BBA0;
+  border: 1px dashed #8A6F4A;
   border-radius: 2px;
   display: flex;
   align-items: center;
@@ -445,7 +445,7 @@ a {
   font-family: 'Courier Prime', monospace;
   font-size: 6px;
   letter-spacing: 0.06em;
-  color: #C9BBA0;
+  color: var(--ink-soft-on-texture);
   padding: 0 6px;
 }
 
@@ -489,6 +489,23 @@ a {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* Journaling ephemera cluster — fixed, below the stamp/postmark, clear of the tap target (v1.5b §5) */
+.back-ephemera {
+  position: absolute;
+  bottom: 1%;
+  right: 3%;
+  width: 30%;
+  max-width: 100px;
+  pointer-events: none;
+}
+
+.back-ephemera-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgb(90 70 40 / 0.2));
 }
 
 .postmark-arc-text,

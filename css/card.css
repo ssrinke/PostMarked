@@ -74,6 +74,15 @@
   background: linear-gradient(135deg, transparent 45%, rgba(0, 0, 0, 0.04) 50%, transparent 55%);
 }
 
+.envelope-texture {
+  position: absolute;
+  inset: 0;
+  background: url('/assets/paper-card.jpg') center / cover;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .transit-postmark-ghost {
   position: absolute;
   top: 50%;

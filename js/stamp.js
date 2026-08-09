@@ -53,12 +53,6 @@ export function deriveSeed(lat, lng) {
   return deriveSeedFromString(seedStringFor(lat, lng));
 }
 
-// Stamp artwork only: seed becomes FNV1a(seedString + ":" + sv) — variant offset (§3/§1).
-// The card-front artwork always keeps using the base seed, unaffected by sv.
-export function deriveStampSeed(lat, lng, sv) {
-  return deriveSeedFromString(`${seedStringFor(lat, lng)}:${sv || 0}`);
-}
-
 const SUN_COLOR = 'hsl(40 65% 70%)';
 
 export function paletteFor(hueA, hueB) {
@@ -283,28 +277,23 @@ export function buildMotif(seed, palette) {
   }
 }
 
-function grainFilter(id) {
-  const filter = el('filter', { id, x: '-5%', y: '-5%', width: '110%', height: '110%' });
-  filter.appendChild(el('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.9', numOctaves: '2', seed: '3', result: 'noise' }));
-  filter.appendChild(el('feColorMatrix', { in: 'noise', type: 'matrix', values: '0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0' }));
-  filter.appendChild(el('feComposite', { operator: 'over', in2: 'SourceGraphic' }));
-  return filter;
-}
+// Supplied stamp artworks (v1.5b §1/§2). sv 0 = floral bouquet, sv 1 = goose medallion.
+// Any other sv (including old payload's sv 2) falls back to sv 0 for back-compat.
+export const STAMP_IMAGES = ['/assets/stamp-1.jpg', '/assets/stamp-2.jpg'];
 
-// Cream wash + grain overlay applied after any motif composition (§5).
-function vintageOverlay(svg, defs, width, height, filterId) {
-  defs.appendChild(grainFilter(filterId));
-  svg.appendChild(el('rect', { x: 0, y: 0, width, height, fill: '#FFFBF0', opacity: 0.08 }));
-  svg.appendChild(el('rect', { x: 0, y: 0, width, height, fill: 'none', filter: `url(#${filterId})` }));
+export function normalizeStampVariant(sv) {
+  return sv === 1 ? 1 : 0;
 }
 
 // 4:5 stamp, 120x150 viewBox units. `svOverride` lets the stamp rack preview a
 // specific variant regardless of the payload's chosen `sv` (used to render the rack itself).
+// Deep-frame/text colors and place text are still deterministic per-location, drawn from the
+// base seed (not the stamp variant seed) since the stamp art itself is now a fixed image.
 export function renderStampSVG(payload, svOverride) {
-  const sv = svOverride !== undefined ? svOverride : (payload.sv || 0);
-  const seed = deriveStampSeed(payload.lat, payload.lng, sv);
+  const sv = normalizeStampVariant(svOverride !== undefined ? svOverride : payload.sv);
+  const seed = deriveSeed(payload.lat, payload.lng);
   const palette = paletteFor(seed.hueA, seed.hueB);
-  const maskId = `perf-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}`;
+  const maskId = `perf-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}-${sv}`;
 
   const svg = el('svg', { viewBox: '0 0 120 150', xmlns: SVG_NS, class: 'stamp-svg' });
 
@@ -341,17 +330,12 @@ export function renderStampSVG(payload, svOverride) {
     el('rect', { x: motifInset, y: motifInset, width: motifSize, height: motifSize * 0.72 }),
   ]));
   const clipGroup = el('g', { 'clip-path': `url(#${motifClipId})` });
-  const motifGroup = el('g', {
-    transform: `translate(${motifInset},${motifInset}) scale(${motifSize},${motifSize * 0.72})`,
-  });
-  motifGroup.appendChild(buildMotif(seed, palette));
-  clipGroup.appendChild(motifGroup);
+  clipGroup.appendChild(el('image', {
+    href: STAMP_IMAGES[sv],
+    x: motifInset, y: motifInset, width: motifSize, height: motifSize * 0.72,
+    preserveAspectRatio: 'xMidYMid slice',
+  }));
   svg.appendChild(clipGroup);
-
-  const filterId = `stamp-grain-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}`;
-  const overlayClip = el('g', { 'clip-path': `url(#${motifClipId})` });
-  vintageOverlay(overlayClip, defs, 120, 150, filterId);
-  svg.appendChild(overlayClip);
 
   const stripY = motifInset + motifSize * 0.72 + 4;
   const place = el('text', {
@@ -368,6 +352,7 @@ export function renderStampSVG(payload, svOverride) {
 }
 
 // Full-bleed 3:2 front artwork (no lockup text — render-card.js overlays that separately).
+// No grain filter here: the paper-card.jpg texture overlay (render-card.js) provides it (v1.5a §3).
 export function renderFrontSVG(payload) {
   const seed = deriveSeed(payload.lat, payload.lng);
   const palette = paletteFor(seed.hueA, seed.hueB);
@@ -381,9 +366,6 @@ export function renderFrontSVG(payload) {
   const motifGroup = el('g', { transform: 'scale(300,200)' });
   motifGroup.appendChild(buildMotif(seed, palette));
   svg.appendChild(motifGroup);
-
-  const filterId = `grain-${seed.seedString.replace(/[^a-z0-9]/gi, '_')}`;
-  vintageOverlay(svg, defs, 300, 200, filterId);
 
   const frameInset = 14;
   svg.appendChild(el('rect', {
