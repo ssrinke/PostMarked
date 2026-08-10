@@ -1,7 +1,6 @@
 import { buildCardElement, INK_COLORS, relayoutWriting } from './render-card.js';
 import { buildStampElement } from './stamp.js';
 import { renderFlowerSVG, renderFlowerNoneIcon } from './flower.js';
-import { shelfFor, frontsForShelf } from './fronts.js';
 
 const screens = {
   arrival: document.getElementById('screen-arrival'),
@@ -104,52 +103,6 @@ async function ensureFreshPosition() {
 function updateApproxCaption() {
   const caption = document.getElementById('approxCaption');
   caption.hidden = !(position && position.accuracy > 5000);
-}
-
-// --- Front tray (v1.8 §1.3) ---
-
-function buildFrontTray() {
-  const container = document.getElementById('frontTrayItems');
-  container.innerHTML = '';
-  if (!position) return;
-  const shelf = shelfFor(position.lat, position.lng);
-  const options = frontsForShelf(shelf).slice(0, 4);
-  options.forEach((id, i) => {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.className = 'front-tray-item';
-    item.setAttribute('role', 'radio');
-    item.setAttribute('aria-checked', String(id === draft.fr));
-    item.setAttribute('aria-label', `Front artwork ${i + 1}`);
-    item.tabIndex = id === draft.fr ? 0 : -1;
-    const img = document.createElement('img');
-    img.src = `/assets/fronts/${id}.jpg`;
-    img.alt = '';
-    item.appendChild(img);
-    item.addEventListener('click', () => selectFront(id));
-    item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.front-tray-item', i, (nextPos) => selectFront(options[nextPos])));
-    container.appendChild(item);
-  });
-}
-
-function selectFront(id) {
-  draft.fr = id;
-  buildFrontTray();
-  const options = frontsForShelf(shelfFor(position.lat, position.lng)).slice(0, 4);
-  document.getElementById('frontTrayItems').querySelectorAll('.front-tray-item')[options.indexOf(id)]?.focus();
-  applyFrontToPreview();
-}
-
-function applyFrontToPreview() {
-  if (!cardPreview) return;
-  let img = cardPreview.front.querySelector('.front-art');
-  if (!img) {
-    img = document.createElement('img');
-    img.className = 'front-art';
-    img.alt = '';
-    cardPreview.front.insertBefore(img, cardPreview.front.firstChild);
-  }
-  img.src = `/assets/fronts/${draft.fr}.jpg`;
 }
 
 // --- Ink tray (§3.4) ---
@@ -294,10 +247,9 @@ window.addEventListener('resize', fitCardPreview);
 
 function enterWriteScreen() {
   showScreen('write');
-  const shelf = shelfFor(position.lat, position.lng);
-  const defaultFront = frontsForShelf(shelf)[0];
-  draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0, fr: defaultFront };
-  buildFrontTray();
+  // No curated `fr` is set from compose (v1.9 §4) — the front renders the watercolor map. The
+  // field stays in the payload/draft shape since old cards and dev.html still use it.
+  draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0, fr: '' };
   buildInkTray();
   buildStampRack();
   buildFlowerTray();

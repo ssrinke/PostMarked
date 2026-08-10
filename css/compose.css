@@ -20,11 +20,13 @@
   font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
   max-width: 20ch;
-  color: var(--ink);
+  color: var(--on-wood);
+  text-shadow: var(--on-wood-shadow);
 }
 
 .subline {
-  color: var(--ink);
+  color: var(--on-wood);
+  text-shadow: var(--on-wood-shadow);
   max-width: 46ch;
   font-size: 14px;
   line-height: 1.5;
@@ -33,7 +35,8 @@
 .approx-caption {
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   max-width: 40ch;
 }
 
@@ -67,7 +70,8 @@
 .link-button {
   background: none;
   border: none;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   text-decoration: underline;
   font-size: 13px;
   min-height: 44px;
@@ -122,17 +126,22 @@
 
 /* Write screen */
 
+/* Header→divider→first-tray spacing (v1.9 §5) is exact (6px/12px, 4px/10px mobile), not the
+   general --section-gap used between the rest of the write screen's stacked flex children — the
+   negative margin below cancels out the flex gap that #screen-write.is-active also applies here. */
 .write-heading {
   font-family: 'Fraunces', serif;
   font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
-  color: var(--ink);
+  color: var(--on-wood);
+  text-shadow: var(--on-wood-shadow);
+  margin-bottom: calc(6px - var(--section-gap));
 }
 
 .write-flourish {
   width: 60px;
   height: 10px;
-  margin: 6px auto 4px;
+  margin: 0 auto calc(12px - var(--section-gap));
   position: relative;
 }
 
@@ -143,7 +152,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: #A8946E;
+  background: rgb(235 223 201 / .85);
 }
 
 .write-flourish::after {
@@ -153,7 +162,7 @@
   left: 50%;
   width: 6px;
   height: 6px;
-  background: #A8946E;
+  background: rgb(235 223 201 / .85);
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
@@ -186,7 +195,8 @@
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6B5B45;
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   margin-bottom: 14px;
   text-align: center;
 }
@@ -365,7 +375,8 @@
   align-self: flex-end;
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--ink-soft);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   margin-top: 4px;
 }
 
@@ -480,7 +491,8 @@
 
 .drawer-caption {
   font-size: 12px;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   max-width: 40ch;
 }
 
@@ -519,7 +531,8 @@
 }
 
 .drawer-empty {
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   font-size: 13px;
 }
 
@@ -538,10 +551,11 @@
 
   .write-heading {
     font-size: clamp(26px, 7vw, 40px);
+    margin-bottom: calc(4px - var(--section-gap));
   }
 
   .write-flourish {
-    margin: 10px auto;
+    margin: 0 auto calc(10px - var(--section-gap));
   }
 
   .tray-section-header {

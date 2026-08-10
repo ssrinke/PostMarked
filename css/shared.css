@@ -1,10 +1,6 @@
 /* Design tokens (§9.1) and shared postcard construction (§9.3), used by both pages. */
 
 :root {
-  --desk: #E6D9B8;
-  --desk-edge: #D9C89E;
-  --desk-mottle: #DECFA9;
-  --desk-decor-color: #A8946E;
   --paper: #FFFBF0;
   --paper-shade: #EFE6D3;
   --ink: #3A3128;
@@ -19,8 +15,9 @@
   --card-rule-on-texture: rgb(138 111 74 / 0.3);
   --ink-soft-on-texture: #675C4C;
   --rule-pitch: 34px;
-  --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  --desk-mottle-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000'%3E%3Cfilter id='m'%3E%3CfeGaussianBlur stdDeviation='12'/%3E%3C/filter%3E%3Cg filter='url(%23m)'%3E%3Cellipse cx='150' cy='120' rx='220' ry='140' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='1450' cy='150' rx='240' ry='150' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='180' cy='880' rx='230' ry='150' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='1420' cy='860' rx='210' ry='140' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='60' cy='500' rx='160' ry='260' fill='%23DECFA9' opacity='0.25'/%3E%3Cellipse cx='1540' cy='520' rx='170' ry='270' fill='%23DECFA9' opacity='0.25'/%3E%3C/g%3E%3C/svg%3E");
+  --on-wood: #F7F2E3;
+  --on-wood-secondary: #EBDFC9;
+  --on-wood-shadow: 0 1px 3px rgb(30 18 8 / .5);
   --stamp-perf-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Crect width='120' height='150' fill='white'/%3E%3Cg fill='black'%3E%3Ccircle cx='4.5' cy='0' r='4'/%3E%3Ccircle cx='4.5' cy='150' r='4'/%3E%3Ccircle cx='13.5' cy='0' r='4'/%3E%3Ccircle cx='13.5' cy='150' r='4'/%3E%3Ccircle cx='22.5' cy='0' r='4'/%3E%3Ccircle cx='22.5' cy='150' r='4'/%3E%3Ccircle cx='31.5' cy='0' r='4'/%3E%3Ccircle cx='31.5' cy='150' r='4'/%3E%3Ccircle cx='40.5' cy='0' r='4'/%3E%3Ccircle cx='40.5' cy='150' r='4'/%3E%3Ccircle cx='49.5' cy='0' r='4'/%3E%3Ccircle cx='49.5' cy='150' r='4'/%3E%3Ccircle cx='58.5' cy='0' r='4'/%3E%3Ccircle cx='58.5' cy='150' r='4'/%3E%3Ccircle cx='67.5' cy='0' r='4'/%3E%3Ccircle cx='67.5' cy='150' r='4'/%3E%3Ccircle cx='76.5' cy='0' r='4'/%3E%3Ccircle cx='76.5' cy='150' r='4'/%3E%3Ccircle cx='85.5' cy='0' r='4'/%3E%3Ccircle cx='85.5' cy='150' r='4'/%3E%3Ccircle cx='94.5' cy='0' r='4'/%3E%3Ccircle cx='94.5' cy='150' r='4'/%3E%3Ccircle cx='103.5' cy='0' r='4'/%3E%3Ccircle cx='103.5' cy='150' r='4'/%3E%3Ccircle cx='112.5' cy='0' r='4'/%3E%3Ccircle cx='112.5' cy='150' r='4'/%3E%3Ccircle cx='0' cy='4.5' r='4'/%3E%3Ccircle cx='120' cy='4.5' r='4'/%3E%3Ccircle cx='0' cy='13.5' r='4'/%3E%3Ccircle cx='120' cy='13.5' r='4'/%3E%3Ccircle cx='0' cy='22.5' r='4'/%3E%3Ccircle cx='120' cy='22.5' r='4'/%3E%3Ccircle cx='0' cy='31.5' r='4'/%3E%3Ccircle cx='120' cy='31.5' r='4'/%3E%3Ccircle cx='0' cy='40.5' r='4'/%3E%3Ccircle cx='120' cy='40.5' r='4'/%3E%3Ccircle cx='0' cy='49.5' r='4'/%3E%3Ccircle cx='120' cy='49.5' r='4'/%3E%3Ccircle cx='0' cy='58.5' r='4'/%3E%3Ccircle cx='120' cy='58.5' r='4'/%3E%3Ccircle cx='0' cy='67.5' r='4'/%3E%3Ccircle cx='120' cy='67.5' r='4'/%3E%3Ccircle cx='0' cy='76.5' r='4'/%3E%3Ccircle cx='120' cy='76.5' r='4'/%3E%3Ccircle cx='0' cy='85.5' r='4'/%3E%3Ccircle cx='120' cy='85.5' r='4'/%3E%3Ccircle cx='0' cy='94.5' r='4'/%3E%3Ccircle cx='120' cy='94.5' r='4'/%3E%3Ccircle cx='0' cy='103.5' r='4'/%3E%3Ccircle cx='120' cy='103.5' r='4'/%3E%3Ccircle cx='0' cy='112.5' r='4'/%3E%3Ccircle cx='120' cy='112.5' r='4'/%3E%3Ccircle cx='0' cy='121.5' r='4'/%3E%3Ccircle cx='120' cy='121.5' r='4'/%3E%3Ccircle cx='0' cy='130.5' r='4'/%3E%3Ccircle cx='120' cy='130.5' r='4'/%3E%3Ccircle cx='0' cy='139.5' r='4'/%3E%3Ccircle cx='120' cy='139.5' r='4'/%3E%3Ccircle cx='0' cy='148.5' r='4'/%3E%3Ccircle cx='120' cy='148.5' r='4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
@@ -39,19 +36,22 @@ body {
   font-family: 'Courier Prime', ui-monospace, monospace;
   color: var(--ink);
   position: relative;
-  background:
-    var(--desk-mottle-svg) center / cover no-repeat,
-    radial-gradient(ellipse at 50% 40%, var(--desk) 0%, var(--desk-edge) 100%);
-  background-color: var(--desk);
+  background: #8A5C3C url('/assets/site-bg.jpg') center / cover no-repeat fixed;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: var(--desk-grain);
+  background: linear-gradient(rgb(40 24 12 / .18), rgb(40 24 12 / .30));
   pointer-events: none;
   z-index: 0;
 }
@@ -94,112 +94,6 @@ a {
   white-space: nowrap;
 }
 
-/* Desk scene decoration v2 (§2) */
-
-.desk-decor {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.desk-decor svg {
-  position: absolute;
-  display: block;
-}
-
-.decor-stamp-a {
-  top: 3%;
-  left: 2%;
-  width: 90px;
-  height: 108px;
-  opacity: 0.06;
-}
-
-.decor-stamp-b {
-  top: 5%;
-  left: 5%;
-  width: 90px;
-  height: 108px;
-  opacity: 0.06;
-}
-
-.decor-parlabel {
-  top: 5%;
-  right: 8%;
-  width: 110px;
-  height: 24px;
-  opacity: 0.06;
-}
-
-.decor-chevrons {
-  top: 11%;
-  right: 5%;
-  width: 90px;
-  height: 20px;
-  opacity: 0.06;
-}
-
-.decor-inkpen {
-  top: 42%;
-  right: 1.5%;
-  width: 80px;
-  height: 88px;
-  opacity: 0.06;
-}
-
-.decor-twine {
-  bottom: 4%;
-  right: 4%;
-  width: 120px;
-  height: 120px;
-  opacity: 0.06;
-}
-
-.decor-coffee {
-  bottom: 5%;
-  left: 4%;
-  width: 92px;
-  height: 92px;
-  opacity: 0.06;
-}
-
-.decor-flower {
-  bottom: 6%;
-  left: 15%;
-  width: 50px;
-  height: 58px;
-  opacity: 0.06;
-}
-
-.decor-postmark {
-  top: 44%;
-  left: 1.5%;
-  width: 90px;
-  height: 90px;
-  opacity: 0.05;
-}
-
-.decor-stars {
-  top: 2%;
-  left: 40%;
-  width: 150px;
-  height: 28px;
-  opacity: 0.04;
-}
-
-@media (max-width: 480px) {
-  .decor-stamp-b,
-  .decor-parlabel,
-  .decor-inkpen,
-  .decor-twine,
-  .decor-flower,
-  .decor-postmark,
-  .decor-stars {
-    display: none;
-  }
-}
-
 /* Postcard construction (§9.3) */
 
 .postcard-wrapper {
@@ -216,7 +110,7 @@ a {
   max-width: 630px;
   aspect-ratio: 3 / 2;
   border-radius: 3px;
-  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
+  box-shadow: 0 22px 48px -12px rgb(30 18 8 / .55);
   perspective: 1400px;
   cursor: pointer;
 }
@@ -297,6 +191,38 @@ a {
   opacity: 0.85;
   margin-top: 2px;
   text-transform: uppercase;
+}
+
+/* Watercolor map front (v1.9 §4) — fades in on load, no layout shift (the face is already
+   reserved by .postcard-face). */
+.front-map {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.front-map.is-loaded {
+  opacity: 1;
+}
+
+.front-map-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.front-attribution {
+  position: absolute;
+  right: 3%;
+  bottom: 2%;
+  font-family: 'Courier Prime', monospace;
+  font-size: 6px;
+  letter-spacing: 0.02em;
+  color: #fff;
+  opacity: 0.7;
+  text-shadow: 0 1px 2px rgb(0 0 0 / .6);
+  pointer-events: none;
 }
 
 .postcard-back {

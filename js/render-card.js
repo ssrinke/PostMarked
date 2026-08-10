@@ -4,6 +4,7 @@ import { buildStampElement } from './stamp.js';
 import { renderPostmarkSVG } from './postmark.js';
 import { renderFlowerSVG } from './flower.js';
 import { FRONT_ID_RE } from './fronts.js';
+import { STADIA_API_KEY } from './config.js';
 
 // Index 0/1 (sepia, blue-black) are back-compat only — no longer offered in the compose ink tray.
 // Index 2/3 (green, red) are the current tray (v1.7 §1 paper — both verified ≥4.5:1).
@@ -32,18 +33,66 @@ function formatCoords(lat, lng) {
   return `${latStr}, ${lngStr}`;
 }
 
-// Curated front artwork (v1.8 §1) — /assets/fronts/{fr}.jpg under the paper multiply overlay and
-// the lockup. Missing/invalid `fr` (including every pre-v1.8 card) or a failed image load falls
-// back to the paper texture + lockup alone.
+const MAP_ATTRIBUTION = '© Stadia Maps © Stamen Design © OpenStreetMap';
+
+function stadiaMapUrl(lat, lng) {
+  return `https://tiles.stadiamaps.com/static/stamen_watercolor.jpg?center=${lat},${lng}&zoom=14&size=1200x800@2x&api_key=${STADIA_API_KEY}`;
+}
+
+function buildMapRing() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('class', 'front-map-ring');
+  svg.setAttribute('aria-hidden', 'true');
+  const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  ring.setAttribute('cx', '50');
+  ring.setAttribute('cy', '50');
+  ring.setAttribute('r', '14');
+  ring.setAttribute('fill', 'none');
+  ring.setAttribute('stroke', '#B85C4A');
+  ring.setAttribute('stroke-width', '2.4');
+  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dot.setAttribute('cx', '50');
+  dot.setAttribute('cy', '50');
+  dot.setAttribute('r', '2.4');
+  dot.setAttribute('fill', '#B85C4A');
+  svg.appendChild(ring);
+  svg.appendChild(dot);
+  return svg;
+}
+
+// Card front (v1.9 §4): a vintage watercolor map centered on the postmark's coordinates,
+// replacing the interim curated-artwork tray. A curated `fr` (v1.8 §1, no longer offered in
+// compose but still honored so old cards keep rendering their chosen front) takes priority when
+// present. Missing API key or a failed image load falls back to the paper texture + lockup alone.
 function buildFront(payload) {
   const front = h('div', { className: 'postcard-face postcard-front' });
-  if (payload.fr && FRONT_ID_RE.test(payload.fr)) {
+  const hasCuratedFront = payload.fr && FRONT_ID_RE.test(payload.fr);
+
+  // Bottom of the stack: curated artwork (dormant path, v1.8 §1) or the watercolor map.
+  if (hasCuratedFront) {
     const img = h('img', { className: 'front-art', alt: '' });
     img.addEventListener('error', () => img.remove());
     img.src = `/assets/fronts/${payload.fr}.jpg`;
     front.appendChild(img);
+  } else if (STADIA_API_KEY) {
+    const img = h('img', { className: 'front-art front-map', alt: '' });
+    img.src = stadiaMapUrl(payload.lat, payload.lng);
+    front.appendChild(img);
   }
+
+  // Paper multiply overlay, unchanged.
   front.appendChild(h('div', { className: 'front-texture-overlay' }));
+
+  // "You are here" ring, above the overlay — only for the map path.
+  let mapImg = null;
+  let mapRing = null;
+  let mapAttribution = null;
+  if (!hasCuratedFront && STADIA_API_KEY) {
+    mapImg = front.querySelector('.front-map');
+    mapRing = buildMapRing();
+    front.appendChild(mapRing);
+  }
 
   const lockup = h('div', { className: 'front-lockup' });
   const headline = payload.ti || payload.pl || '';
@@ -51,6 +100,20 @@ function buildFront(payload) {
   const co = payload.co ? `${payload.co} · ` : '';
   lockup.appendChild(text('div', 'front-coords', `${co}${formatCoords(payload.lat, payload.lng)}`));
   front.appendChild(lockup);
+
+  // Attribution line, topmost — required by the map tile license.
+  if (mapImg) {
+    mapAttribution = text('div', 'front-attribution', MAP_ATTRIBUTION);
+    front.appendChild(mapAttribution);
+    const ring = mapRing;
+    const attribution = mapAttribution;
+    mapImg.addEventListener('error', () => {
+      mapImg.remove();
+      ring.remove();
+      attribution.remove();
+    });
+    mapImg.addEventListener('load', () => mapImg.classList.add('is-loaded'));
+  }
 
   return front;
 }
@@ -60,28 +123,33 @@ function buildFront(payload) {
 // --rule-pitch is a fixed px value rather than a % of the responsive card.
 const RULE_PITCH = 34;
 
+// v1.9 §1 — the message box must never show its own scrollbar. It grows unconditionally by
+// whole --rule-pitch rows to fit its content (bounded only by the 300-char maxlength); the
+// postcard itself grows past its default 3:2 aspect ratio when the writing area needs more
+// room than that gives it, rather than capping/scrolling the text.
 export function relayoutWriting(back) {
   const writing = back.querySelector('.back-writing');
   const messageEl = back.querySelector('.back-message, .back-message-input');
   if (!writing || !messageEl) return;
 
-  const cardRect = back.getBoundingClientRect();
-  if (!cardRect.height) return;
-
-  const writingTop = writing.getBoundingClientRect().top - cardRect.top;
-  const bottomMargin = cardRect.height * 0.04; // matches the container's 4% side margins
-  const maxTotalHeight = cardRect.height - writingTop - bottomMargin;
-  const maxRows = Math.max(3, Math.floor(maxTotalHeight / RULE_PITCH));
-  // A pressed-flower charm visually overflows its 34px From row upward (v1.8 §6); give it one
-  // extra clear row so its top doesn't reach into the message's last line.
-  const hasFlower = !!back.querySelector('.back-flower .flower-svg');
-  const maxMessageRows = Math.max(1, maxRows - 2 - (hasFlower ? 1 : 0));
-
   messageEl.style.height = `${RULE_PITCH}px`;
   const contentRows = Math.max(1, Math.ceil(messageEl.scrollHeight / RULE_PITCH));
-  const messageRows = Math.min(maxMessageRows, contentRows);
-  messageEl.style.height = `${messageRows * RULE_PITCH}px`;
-  messageEl.style.overflowY = contentRows > messageRows ? 'auto' : 'hidden';
+  messageEl.style.height = `${contentRows * RULE_PITCH}px`;
+  messageEl.style.overflowY = 'hidden';
+
+  const postcard = back.closest('.postcard');
+  if (!postcard) return;
+
+  postcard.style.height = '';
+  const naturalHeight = postcard.getBoundingClientRect().height;
+  if (!naturalHeight) return;
+  const cardRect = back.getBoundingClientRect();
+  const writingTop = writing.getBoundingClientRect().top - cardRect.top;
+  const bottomMargin = naturalHeight * 0.04; // matches the container's 4% side margins
+  const requiredHeight = writingTop + writing.scrollHeight + bottomMargin;
+  if (requiredHeight > naturalHeight) {
+    postcard.style.height = `${requiredHeight}px`;
+  }
 }
 
 // Card back v2 (v1.7 §4, ruled grid rebuilt in v1.8a §1/§2) — single full-width writing field,

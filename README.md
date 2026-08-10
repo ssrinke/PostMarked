@@ -23,6 +23,13 @@ node scripts/make-og.mjs              # renders og.png (1200×630) from an inlin
 npm i -g vercel && vercel login && vercel link
 vercel env add ED25519_PRIVATE_KEY    # paste from keygen (add to Production + Preview + Development)
 vercel env add NOMINATIM_CONTACT      # a contact email, per Nominatim's usage policy
+# REQUIRED — card front is a Stadia Maps watercolor map of the postmark's coordinates:
+#   1. Sign up for Stadia Maps' free tier: https://stadiamaps.com
+#   2. In the Stadia dashboard, create an API key and restrict it to your site's domain(s)
+#      (Stadia's intended pattern for client-side keys — the key is used directly in the
+#      browser, not proxied through the server).
+#   3. Paste the key into STADIA_API_KEY in js/config.js.
+#   Leaving it blank is fine for local dev — the front falls back to the paper texture + lockup.
 vercel dev                            # http://localhost:3000  (localhost = secure context, geolocation works)
 vercel --prod                         # deploy; custom domain optional via Vercel dashboard
 ```
