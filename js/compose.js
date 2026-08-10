@@ -1,4 +1,4 @@
-import { buildCardElement, INK_COLORS } from './render-card.js';
+import { buildCardElement, INK_COLORS, relayoutWriting } from './render-card.js';
 import { buildStampElement } from './stamp.js';
 import { renderFlowerSVG, renderFlowerNoneIcon } from './flower.js';
 import { shelfFor, frontsForShelf } from './fronts.js';
@@ -270,6 +270,7 @@ function applyFlowerToPreview() {
   wrap.innerHTML = '';
   const svg = renderFlowerSVG(draft.fl);
   if (svg) wrap.appendChild(svg);
+  relayoutWriting(cardPreview.back);
 }
 
 // --- Write screen ---

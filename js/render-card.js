@@ -55,30 +55,44 @@ function buildFront(payload) {
   return front;
 }
 
-// Card back v2 (v1.7 §4) — single full-width writing field, no divided columns.
+// Ruled writing grid (v1.8a §1/§2) — one shared pitch, drawn as a single background on the
+// container. Row heights beyond the two fixed rows (To, From) are computed here in px, since
+// --rule-pitch is a fixed px value rather than a % of the responsive card.
+const RULE_PITCH = 34;
+
+export function relayoutWriting(back) {
+  const writing = back.querySelector('.back-writing');
+  const messageEl = back.querySelector('.back-message, .back-message-input');
+  if (!writing || !messageEl) return;
+
+  const cardRect = back.getBoundingClientRect();
+  if (!cardRect.height) return;
+
+  const writingTop = writing.getBoundingClientRect().top - cardRect.top;
+  const bottomMargin = cardRect.height * 0.04; // matches the container's 4% side margins
+  const maxTotalHeight = cardRect.height - writingTop - bottomMargin;
+  const maxRows = Math.max(3, Math.floor(maxTotalHeight / RULE_PITCH));
+  // A pressed-flower charm visually overflows its 34px From row upward (v1.8 §6); give it one
+  // extra clear row so its top doesn't reach into the message's last line.
+  const hasFlower = !!back.querySelector('.back-flower .flower-svg');
+  const maxMessageRows = Math.max(1, maxRows - 2 - (hasFlower ? 1 : 0));
+
+  messageEl.style.height = `${RULE_PITCH}px`;
+  const contentRows = Math.max(1, Math.ceil(messageEl.scrollHeight / RULE_PITCH));
+  const messageRows = Math.min(maxMessageRows, contentRows);
+  messageEl.style.height = `${messageRows * RULE_PITCH}px`;
+  messageEl.style.overflowY = contentRows > messageRows ? 'auto' : 'hidden';
+}
+
+// Card back v2 (v1.7 §4, ruled grid rebuilt in v1.8a §1/§2) — single full-width writing field,
+// no divided columns.
 function buildBack(payload, options = {}) {
   const { editable = false, onMessageInput, onSignatureInput, onToInput } = options;
   const back = h('div', { className: 'postcard-face postcard-back' });
   const ink = INK_COLORS[payload.ink || 0];
 
   back.appendChild(text('div', 'back-heading', 'Postcard'));
-
-  if (editable || payload.to) {
-    const toLine = h('div', { className: 'back-to-line' });
-    toLine.appendChild(text('span', 'back-line-label', 'To'));
-    if (editable) {
-      const toInput = h('input', { className: 'back-to-input', type: 'text', maxlength: '30', placeholder: 'Their name' });
-      toInput.value = payload.to || '';
-      toInput.style.color = ink;
-      if (onToInput) toInput.addEventListener('input', () => onToInput(toInput.value));
-      toLine.appendChild(toInput);
-    } else {
-      const toName = text('span', 'back-to-name', payload.to);
-      toName.style.color = ink;
-      toLine.appendChild(toName);
-    }
-    back.appendChild(toLine);
-  }
+  back.appendChild(h('div', { className: 'back-heading-flourish', 'aria-hidden': 'true' }));
 
   const stampGuide = h('div', { className: 'stamp-guide' });
   stampGuide.appendChild(text('div', 'stamp-guide-label', 'AFFIX STAMP'));
@@ -94,17 +108,46 @@ function buildBack(payload, options = {}) {
     back.appendChild(postmarkWrap);
   }
 
-  if (editable) {
-    const textarea = h('textarea', { className: 'back-message-input', maxlength: '300', placeholder: 'Write your message…' });
-    textarea.value = payload.m || '';
-    textarea.style.color = ink;
-    if (onMessageInput) textarea.addEventListener('input', () => onMessageInput(textarea.value));
-    back.appendChild(textarea);
-  } else {
-    const messageEl = text('div', 'back-message', payload.m || '');
-    messageEl.style.color = ink;
-    back.appendChild(messageEl);
+  // Writing grid: row 1 = To, row 2..N-1 = message, row N = From — always all three rows so the
+  // grid math never depends on whether a recipient name is present.
+  const writing = h('div', { className: 'back-writing' });
+
+  const toLine = h('div', { className: 'back-to-line' });
+  if (editable || payload.to) {
+    toLine.appendChild(text('span', 'back-line-label', 'To'));
+    if (editable) {
+      const toInput = h('input', { className: 'back-to-input', type: 'text', maxlength: '30', placeholder: 'Their name' });
+      toInput.value = payload.to || '';
+      toInput.style.color = ink;
+      if (onToInput) toInput.addEventListener('input', () => onToInput(toInput.value));
+      toLine.appendChild(toInput);
+    } else {
+      const toName = text('span', 'back-to-name', payload.to);
+      toName.style.color = ink;
+      toLine.appendChild(toName);
+    }
   }
+  writing.appendChild(toLine);
+
+  let messageEl;
+  if (editable) {
+    messageEl = h('textarea', { className: 'back-message-input', maxlength: '300', placeholder: 'Write your message…' });
+    messageEl.value = payload.m || '';
+    messageEl.style.color = ink;
+    messageEl.addEventListener('input', () => {
+      if (onMessageInput) onMessageInput(messageEl.value);
+      relayoutWriting(back);
+    });
+  } else {
+    messageEl = text('div', 'back-message', payload.m || '');
+    messageEl.style.color = ink;
+  }
+  writing.appendChild(messageEl);
+
+  // Collapses to 0 height (CSS) unless a flower is selected, in which case it opens up a full
+  // pitch row so the charm's upward overflow (v1.8 §6) has real clearance instead of running
+  // into the message's last line.
+  writing.appendChild(h('div', { className: 'back-flower-spacer', 'aria-hidden': 'true' }));
 
   const fromLine = h('div', { className: 'back-signature-line' });
   const flowerWrap = h('div', { className: 'back-flower' });
@@ -123,7 +166,9 @@ function buildBack(payload, options = {}) {
     sigEl.style.color = ink;
     fromLine.appendChild(sigEl);
   }
-  back.appendChild(fromLine);
+  writing.appendChild(fromLine);
+
+  back.appendChild(writing);
 
   if (!editable) {
     const hit = h('div', {
@@ -134,6 +179,9 @@ function buildBack(payload, options = {}) {
     });
     back.appendChild(hit);
   }
+
+  const ro = new ResizeObserver(() => relayoutWriting(back));
+  ro.observe(back);
 
   return back;
 }
