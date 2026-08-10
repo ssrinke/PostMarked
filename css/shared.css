@@ -15,9 +15,10 @@
   --card-rule-on-texture: rgb(138 111 74 / 0.3);
   --ink-soft-on-texture: #675C4C;
   --rule-pitch: 34px;
-  --on-wood: #F7F2E3;
-  --on-wood-secondary: #EBDFC9;
-  --on-wood-shadow: 0 1px 3px rgb(30 18 8 / .5);
+  /* On-background page text (v1.10 §2) — reverted from v1.9's light-on-photo treatment now
+     that the background is the pale sage travel pattern. */
+  --page-text: #3A3128;
+  --page-text-secondary: #6B5B45;
   --stamp-perf-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Crect width='120' height='150' fill='white'/%3E%3Cg fill='black'%3E%3Ccircle cx='4.5' cy='0' r='4'/%3E%3Ccircle cx='4.5' cy='150' r='4'/%3E%3Ccircle cx='13.5' cy='0' r='4'/%3E%3Ccircle cx='13.5' cy='150' r='4'/%3E%3Ccircle cx='22.5' cy='0' r='4'/%3E%3Ccircle cx='22.5' cy='150' r='4'/%3E%3Ccircle cx='31.5' cy='0' r='4'/%3E%3Ccircle cx='31.5' cy='150' r='4'/%3E%3Ccircle cx='40.5' cy='0' r='4'/%3E%3Ccircle cx='40.5' cy='150' r='4'/%3E%3Ccircle cx='49.5' cy='0' r='4'/%3E%3Ccircle cx='49.5' cy='150' r='4'/%3E%3Ccircle cx='58.5' cy='0' r='4'/%3E%3Ccircle cx='58.5' cy='150' r='4'/%3E%3Ccircle cx='67.5' cy='0' r='4'/%3E%3Ccircle cx='67.5' cy='150' r='4'/%3E%3Ccircle cx='76.5' cy='0' r='4'/%3E%3Ccircle cx='76.5' cy='150' r='4'/%3E%3Ccircle cx='85.5' cy='0' r='4'/%3E%3Ccircle cx='85.5' cy='150' r='4'/%3E%3Ccircle cx='94.5' cy='0' r='4'/%3E%3Ccircle cx='94.5' cy='150' r='4'/%3E%3Ccircle cx='103.5' cy='0' r='4'/%3E%3Ccircle cx='103.5' cy='150' r='4'/%3E%3Ccircle cx='112.5' cy='0' r='4'/%3E%3Ccircle cx='112.5' cy='150' r='4'/%3E%3Ccircle cx='0' cy='4.5' r='4'/%3E%3Ccircle cx='120' cy='4.5' r='4'/%3E%3Ccircle cx='0' cy='13.5' r='4'/%3E%3Ccircle cx='120' cy='13.5' r='4'/%3E%3Ccircle cx='0' cy='22.5' r='4'/%3E%3Ccircle cx='120' cy='22.5' r='4'/%3E%3Ccircle cx='0' cy='31.5' r='4'/%3E%3Ccircle cx='120' cy='31.5' r='4'/%3E%3Ccircle cx='0' cy='40.5' r='4'/%3E%3Ccircle cx='120' cy='40.5' r='4'/%3E%3Ccircle cx='0' cy='49.5' r='4'/%3E%3Ccircle cx='120' cy='49.5' r='4'/%3E%3Ccircle cx='0' cy='58.5' r='4'/%3E%3Ccircle cx='120' cy='58.5' r='4'/%3E%3Ccircle cx='0' cy='67.5' r='4'/%3E%3Ccircle cx='120' cy='67.5' r='4'/%3E%3Ccircle cx='0' cy='76.5' r='4'/%3E%3Ccircle cx='120' cy='76.5' r='4'/%3E%3Ccircle cx='0' cy='85.5' r='4'/%3E%3Ccircle cx='120' cy='85.5' r='4'/%3E%3Ccircle cx='0' cy='94.5' r='4'/%3E%3Ccircle cx='120' cy='94.5' r='4'/%3E%3Ccircle cx='0' cy='103.5' r='4'/%3E%3Ccircle cx='120' cy='103.5' r='4'/%3E%3Ccircle cx='0' cy='112.5' r='4'/%3E%3Ccircle cx='120' cy='112.5' r='4'/%3E%3Ccircle cx='0' cy='121.5' r='4'/%3E%3Ccircle cx='120' cy='121.5' r='4'/%3E%3Ccircle cx='0' cy='130.5' r='4'/%3E%3Ccircle cx='120' cy='130.5' r='4'/%3E%3Ccircle cx='0' cy='139.5' r='4'/%3E%3Ccircle cx='120' cy='139.5' r='4'/%3E%3Ccircle cx='0' cy='148.5' r='4'/%3E%3Ccircle cx='120' cy='148.5' r='4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
@@ -36,24 +37,16 @@ body {
   font-family: 'Courier Prime', ui-monospace, monospace;
   color: var(--ink);
   position: relative;
-  background: #8A5C3C url('/assets/site-bg.jpg') center / cover no-repeat fixed;
+  background: #E7F0F2 url('/assets/travel-pattern.svg');
+  background-size: 260px 220px;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 @media (max-width: 480px) {
   body {
-    background-attachment: scroll;
+    background-size: 195px 165px;
   }
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(rgb(40 24 12 / .60), rgb(40 24 12 / .72));
-  pointer-events: none;
-  z-index: 0;
 }
 
 body::after {
@@ -110,7 +103,7 @@ a {
   max-width: 630px;
   aspect-ratio: 3 / 2;
   border-radius: 3px;
-  box-shadow: 0 22px 48px -12px rgb(30 18 8 / .55);
+  box-shadow: 0 20px 44px -12px rgb(60 78 84 / .38);
   perspective: 1400px;
   cursor: pointer;
 }
@@ -258,36 +251,6 @@ a {
   text-align: center;
 }
 
-.back-heading-flourish {
-  position: absolute;
-  top: 13%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: clamp(30px, 12.38vw, 78px);
-  height: 8px;
-}
-
-.back-heading-flourish::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #A8946E;
-}
-
-.back-heading-flourish::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  background: #A8946E;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
 .back-line-label {
   font-family: 'Courier Prime', monospace;
   font-size: 9px;
@@ -345,12 +308,16 @@ a {
   outline-offset: 4px;
 }
 
+/* Quieter placeholders (v1.10 §3) — same Caveat family and CRITICALLY the same line-height as
+   the typed text (var(--rule-pitch)) so the rule alignment doesn't jump when typing begins. */
 .back-to-input::placeholder,
 .back-message-input::placeholder,
 .back-signature-input::placeholder {
   font-family: 'Caveat', cursive;
+  font-size: 18px;
+  line-height: var(--rule-pitch);
   color: var(--ink);
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
 .back-message,

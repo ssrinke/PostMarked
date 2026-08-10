@@ -20,13 +20,11 @@
   font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
   max-width: 20ch;
-  color: var(--on-wood);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text);
 }
 
 .subline {
-  color: var(--on-wood);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text);
   max-width: 46ch;
   font-size: 14px;
   line-height: 1.5;
@@ -35,8 +33,7 @@
 .approx-caption {
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   max-width: 40ch;
 }
 
@@ -70,8 +67,7 @@
 .link-button {
   background: none;
   border: none;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   text-decoration: underline;
   font-size: 13px;
   min-height: 44px;
@@ -133,8 +129,7 @@
   font-family: 'Fraunces', serif;
   font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
-  color: var(--on-wood);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text);
   margin-bottom: calc(6px - var(--section-gap));
 }
 
@@ -152,7 +147,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: rgb(235 223 201 / .85);
+  background: rgb(138 123 94 / .85);
 }
 
 .write-flourish::after {
@@ -162,7 +157,7 @@
   left: 50%;
   width: 6px;
   height: 6px;
-  background: rgb(235 223 201 / .85);
+  background: rgb(138 123 94 / .85);
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
@@ -195,8 +190,7 @@
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   margin-bottom: 14px;
   text-align: center;
 }
@@ -375,8 +369,7 @@
   align-self: flex-end;
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   margin-top: 4px;
 }
 
@@ -491,8 +484,7 @@
 
 .drawer-caption {
   font-size: 12px;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   max-width: 40ch;
 }
 
@@ -531,8 +523,7 @@
 }
 
 .drawer-empty {
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   font-size: 13px;
 }
 

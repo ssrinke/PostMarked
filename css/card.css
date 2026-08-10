@@ -51,8 +51,7 @@
   font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   text-align: center;
   max-width: 90vw;
 }
@@ -142,7 +141,7 @@
   z-index: 2;
   background: var(--paper);
   border-radius: 3px;
-  box-shadow: 0 22px 48px -12px rgb(30 18 8 / .55);
+  box-shadow: 0 20px 44px -12px rgb(60 78 84 / .38);
   touch-action: pan-y;
   overflow: hidden;
 }
@@ -330,8 +329,7 @@
   text-align: center;
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
 }
 
 .card-footer a {
@@ -407,8 +405,7 @@
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
   text-transform: lowercase;
-  color: var(--on-wood-secondary);
-  text-shadow: var(--on-wood-shadow);
+  color: var(--page-text-secondary);
   opacity: 0;
   transition: opacity 300ms ease;
 }

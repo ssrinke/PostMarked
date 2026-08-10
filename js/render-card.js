@@ -122,6 +122,9 @@ function buildFront(payload) {
 // container. Row heights beyond the two fixed rows (To, From) are computed here in px, since
 // --rule-pitch is a fixed px value rather than a % of the responsive card.
 const RULE_PITCH = 34;
+// v1.10 §4 — the writing container always renders at least six pitch rows (To + 4 empty
+// message rows + From); the message area itself never renders below 4 rows.
+const MIN_MESSAGE_ROWS = 4;
 
 // v1.9 §1 — the message box must never show its own scrollbar. It grows unconditionally by
 // whole --rule-pitch rows to fit its content (bounded only by the 300-char maxlength); the
@@ -133,7 +136,7 @@ export function relayoutWriting(back) {
   if (!writing || !messageEl) return;
 
   messageEl.style.height = `${RULE_PITCH}px`;
-  const contentRows = Math.max(1, Math.ceil(messageEl.scrollHeight / RULE_PITCH));
+  const contentRows = Math.max(MIN_MESSAGE_ROWS, Math.ceil(messageEl.scrollHeight / RULE_PITCH));
   messageEl.style.height = `${contentRows * RULE_PITCH}px`;
   messageEl.style.overflowY = 'hidden';
 
@@ -160,7 +163,6 @@ function buildBack(payload, options = {}) {
   const ink = INK_COLORS[payload.ink || 0];
 
   back.appendChild(text('div', 'back-heading', 'Postcard'));
-  back.appendChild(h('div', { className: 'back-heading-flourish', 'aria-hidden': 'true' }));
 
   const stampGuide = h('div', { className: 'stamp-guide' });
   stampGuide.appendChild(text('div', 'stamp-guide-label', 'AFFIX STAMP'));
