@@ -1,9 +1,6 @@
 /* Design tokens (§9.1) and shared postcard construction (§9.3), used by both pages. */
 
 :root {
-  --gingham-base: #F5F1E2;
-  --gingham-line: #B9CDE4;
-  --gingham-tile: 26px;
   --paper: #FFFBF0;
   --paper-shade: #EFE6D3;
   --ink: #3A3128;
@@ -14,16 +11,14 @@
   --airmail-blue: #2E5E8C;
   --blush: #E9B9A2;
   --seal: #A3372B;
-  --card-texture-fallback: #EFE0BE;
+  --card-texture-fallback: #EFDFC4;
   --card-rule-on-texture: rgb(138 111 74 / 0.3);
   --ink-soft-on-texture: #675C4C;
-  --desk-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-}
-
-@media (max-width: 480px) {
-  :root {
-    --gingham-tile: 20px;
-  }
+  --rule-pitch: 34px;
+  --on-wood: #F7F2E3;
+  --on-wood-secondary: #EBDFC9;
+  --on-wood-shadow: 0 1px 3px rgb(30 18 8 / .5);
+  --stamp-perf-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Crect width='120' height='150' fill='white'/%3E%3Cg fill='black'%3E%3Ccircle cx='4.5' cy='0' r='4'/%3E%3Ccircle cx='4.5' cy='150' r='4'/%3E%3Ccircle cx='13.5' cy='0' r='4'/%3E%3Ccircle cx='13.5' cy='150' r='4'/%3E%3Ccircle cx='22.5' cy='0' r='4'/%3E%3Ccircle cx='22.5' cy='150' r='4'/%3E%3Ccircle cx='31.5' cy='0' r='4'/%3E%3Ccircle cx='31.5' cy='150' r='4'/%3E%3Ccircle cx='40.5' cy='0' r='4'/%3E%3Ccircle cx='40.5' cy='150' r='4'/%3E%3Ccircle cx='49.5' cy='0' r='4'/%3E%3Ccircle cx='49.5' cy='150' r='4'/%3E%3Ccircle cx='58.5' cy='0' r='4'/%3E%3Ccircle cx='58.5' cy='150' r='4'/%3E%3Ccircle cx='67.5' cy='0' r='4'/%3E%3Ccircle cx='67.5' cy='150' r='4'/%3E%3Ccircle cx='76.5' cy='0' r='4'/%3E%3Ccircle cx='76.5' cy='150' r='4'/%3E%3Ccircle cx='85.5' cy='0' r='4'/%3E%3Ccircle cx='85.5' cy='150' r='4'/%3E%3Ccircle cx='94.5' cy='0' r='4'/%3E%3Ccircle cx='94.5' cy='150' r='4'/%3E%3Ccircle cx='103.5' cy='0' r='4'/%3E%3Ccircle cx='103.5' cy='150' r='4'/%3E%3Ccircle cx='112.5' cy='0' r='4'/%3E%3Ccircle cx='112.5' cy='150' r='4'/%3E%3Ccircle cx='0' cy='4.5' r='4'/%3E%3Ccircle cx='120' cy='4.5' r='4'/%3E%3Ccircle cx='0' cy='13.5' r='4'/%3E%3Ccircle cx='120' cy='13.5' r='4'/%3E%3Ccircle cx='0' cy='22.5' r='4'/%3E%3Ccircle cx='120' cy='22.5' r='4'/%3E%3Ccircle cx='0' cy='31.5' r='4'/%3E%3Ccircle cx='120' cy='31.5' r='4'/%3E%3Ccircle cx='0' cy='40.5' r='4'/%3E%3Ccircle cx='120' cy='40.5' r='4'/%3E%3Ccircle cx='0' cy='49.5' r='4'/%3E%3Ccircle cx='120' cy='49.5' r='4'/%3E%3Ccircle cx='0' cy='58.5' r='4'/%3E%3Ccircle cx='120' cy='58.5' r='4'/%3E%3Ccircle cx='0' cy='67.5' r='4'/%3E%3Ccircle cx='120' cy='67.5' r='4'/%3E%3Ccircle cx='0' cy='76.5' r='4'/%3E%3Ccircle cx='120' cy='76.5' r='4'/%3E%3Ccircle cx='0' cy='85.5' r='4'/%3E%3Ccircle cx='120' cy='85.5' r='4'/%3E%3Ccircle cx='0' cy='94.5' r='4'/%3E%3Ccircle cx='120' cy='94.5' r='4'/%3E%3Ccircle cx='0' cy='103.5' r='4'/%3E%3Ccircle cx='120' cy='103.5' r='4'/%3E%3Ccircle cx='0' cy='112.5' r='4'/%3E%3Ccircle cx='120' cy='112.5' r='4'/%3E%3Ccircle cx='0' cy='121.5' r='4'/%3E%3Ccircle cx='120' cy='121.5' r='4'/%3E%3Ccircle cx='0' cy='130.5' r='4'/%3E%3Ccircle cx='120' cy='130.5' r='4'/%3E%3Ccircle cx='0' cy='139.5' r='4'/%3E%3Ccircle cx='120' cy='139.5' r='4'/%3E%3Ccircle cx='0' cy='148.5' r='4'/%3E%3Ccircle cx='120' cy='148.5' r='4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 * {
@@ -41,32 +36,22 @@ body {
   font-family: 'Courier Prime', ui-monospace, monospace;
   color: var(--ink);
   position: relative;
-  background:
-    repeating-linear-gradient(
-      to right,
-      rgb(185 205 228 / 0.5) 0,
-      rgb(185 205 228 / 0.5) calc(var(--gingham-tile) / 2),
-      transparent calc(var(--gingham-tile) / 2),
-      transparent var(--gingham-tile)
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      rgb(185 205 228 / 0.5) 0,
-      rgb(185 205 228 / 0.5) calc(var(--gingham-tile) / 2),
-      transparent calc(var(--gingham-tile) / 2),
-      transparent var(--gingham-tile)
-    ),
-    var(--gingham-base);
-  background-color: var(--gingham-base);
+  background: #8A5C3C url('/assets/site-bg.jpg') center / cover no-repeat fixed;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: var(--desk-grain);
+  background: linear-gradient(rgb(40 24 12 / .18), rgb(40 24 12 / .30));
   pointer-events: none;
   z-index: 0;
 }
@@ -115,7 +100,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
 }
 
@@ -125,7 +110,7 @@ a {
   max-width: 630px;
   aspect-ratio: 3 / 2;
   border-radius: 3px;
-  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
+  box-shadow: 0 22px 48px -12px rgb(30 18 8 / .55);
   perspective: 1400px;
   cursor: pointer;
 }
@@ -156,26 +141,21 @@ a {
   display: flex;
 }
 
-.front-svg,
-.front-svg > svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.postcard-front svg.front-svg {
+.front-art {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .front-texture-overlay {
   position: absolute;
   inset: 0;
-  background: url('/assets/paper-card.jpg') center / cover;
+  background: url('/assets/paper-card-v2.jpg') center / cover;
   mix-blend-mode: multiply;
-  opacity: 0.3;
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -213,11 +193,43 @@ a {
   text-transform: uppercase;
 }
 
+/* Watercolor map front (v1.9 §4) — fades in on load, no layout shift (the face is already
+   reserved by .postcard-face). */
+.front-map {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.front-map.is-loaded {
+  opacity: 1;
+}
+
+.front-map-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.front-attribution {
+  position: absolute;
+  right: 3%;
+  bottom: 2%;
+  font-family: 'Courier Prime', monospace;
+  font-size: 6px;
+  letter-spacing: 0.02em;
+  color: #fff;
+  opacity: 0.7;
+  text-shadow: 0 1px 2px rgb(0 0 0 / .6);
+  pointer-events: none;
+}
+
 .postcard-back {
   transform: rotateY(180deg);
-  display: grid;
-  grid-template-columns: 55% 1px 45%;
-  background: var(--card-texture-fallback) url('/assets/paper-card.jpg') center / cover no-repeat;
+  position: absolute;
+  inset: 0;
+  background: var(--card-texture-fallback) url('/assets/paper-card-v2.jpg') center / cover no-repeat;
   border: 1px solid transparent;
   border-image: repeating-linear-gradient(
       -45deg,
@@ -229,11 +241,51 @@ a {
     10;
 }
 
-.back-left {
-  padding: 6% 5%;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+/* Card back v2 (v1.7 §4) — single full-width writing field, no divided columns. */
+
+/* Heading at 30 card-units (v1.8a §3) — ≈45px on the 630px desktop card; the vw coefficient
+   saturates into that 45px ceiling by the time the card itself reaches its 630px cap. */
+.back-heading {
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Courier Prime', monospace;
+  font-size: clamp(14px, 7.14vw, 45px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft-on-texture);
+  text-align: center;
+}
+
+.back-heading-flourish {
+  position: absolute;
+  top: 13%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(30px, 12.38vw, 78px);
+  height: 8px;
+}
+
+.back-heading-flourish::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #A8946E;
+}
+
+.back-heading-flourish::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: #A8946E;
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .back-line-label {
@@ -242,108 +294,156 @@ a {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-right: 6px;
   flex-shrink: 0;
 }
 
+/* Ruled writing grid (v1.8a §1/§2) — ONE shared pitch for the whole area. Rules are a single
+   background on the container, drawn at the bottom of every --rule-pitch row; every row (To,
+   message, From) is an exact multiple of that pitch so nothing renders a partial rule or runs
+   text through a line. Row heights beyond the fixed To/From rows are set in px by JS
+   (render-card.js) since the pitch itself is a fixed px value, not a % of the responsive card. */
+.back-writing {
+  position: absolute;
+  top: 21%;
+  left: 4%;
+  right: 4%;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--rule-pitch) - 1px),
+    rgb(168 148 110 / .4) calc(var(--rule-pitch) - 1px),
+    rgb(168 148 110 / .4) var(--rule-pitch)
+  );
+  background-size: 100% var(--rule-pitch);
+}
+
 .back-to-line {
+  height: var(--rule-pitch);
   display: flex;
-  align-items: baseline;
-  border-bottom: 1px solid var(--card-rule-on-texture);
-  padding-bottom: 3px;
-  margin-bottom: 6px;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
 }
 
 .back-to-name,
 .back-to-input {
   font-family: 'Caveat', cursive;
   font-weight: 600;
-  font-size: clamp(15px, 2.4vw, 20px);
+  font-size: 24px;
+  line-height: var(--rule-pitch);
   color: var(--ink);
   flex: 1;
   min-width: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
 }
 
 .back-to-input {
   border: none;
-  background: transparent;
-  outline: none;
+  outline-offset: 4px;
+}
+
+.back-to-input::placeholder,
+.back-message-input::placeholder,
+.back-signature-input::placeholder {
+  font-family: 'Caveat', cursive;
+  color: var(--ink);
+  opacity: 0.55;
 }
 
 .back-message,
 .back-message-input {
+  display: block;
+  height: var(--rule-pitch);
+  width: 100%;
   font-family: 'Caveat', cursive;
   font-weight: 600;
-  font-size: clamp(16px, 2.6vw, 24px);
-  line-height: 1.5;
+  font-size: 24px;
+  line-height: var(--rule-pitch);
   color: var(--ink);
   white-space: pre-wrap;
-  transform: rotate(-0.4deg);
-  flex: 1;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(1.5em - 1px),
-    var(--card-rule-on-texture) calc(1.5em - 1px),
-    var(--card-rule-on-texture) 1.5em
-  );
-  background-size: 100% 1.5em;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
 }
 
 .back-message-input {
+  display: block;
+  border: 0;
+  outline-offset: 4px;
   resize: none;
-  border: none;
-  background-color: transparent;
-  width: 100%;
-  outline: none;
+  overflow: hidden;
+}
+
+.back-flower-spacer {
+  height: 0;
+}
+
+.postcard-back:has(.back-flower .flower-svg) .back-flower-spacer {
+  height: var(--rule-pitch);
 }
 
 .back-signature-line {
+  height: var(--rule-pitch);
   display: flex;
-  align-items: baseline;
-  border-bottom: 1px solid var(--card-rule-on-texture);
-  padding-bottom: 3px;
-  margin-top: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
 }
 
 .back-signature,
 .back-signature-input {
   font-family: 'Caveat', cursive;
   font-weight: 700;
-  font-size: clamp(16px, 3vw, 28px);
+  font-size: 24px;
+  line-height: var(--rule-pitch);
   color: var(--ink);
   border: none;
   background: transparent;
-  outline: none;
-  flex: 1;
-  min-width: 0;
+  outline-offset: 4px;
+  padding: 0;
+  margin: 0;
 }
 
-.back-rule {
-  background: var(--paper-shade);
+.back-signature-input {
+  width: 10ch;
+  field-sizing: content;
+  text-align: right;
 }
 
-.back-right {
-  position: relative;
-  padding: 5%;
+/* Pressed-flower charm (v1.7 §5, sized per v1.8 §6) — sits immediately left of the From label,
+   its own base on the signature rule; the tall SVG is allowed to visually overflow the fixed
+   34px From row upward since it paints last (DOM order) over whatever message row is beneath. */
+.back-flower {
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
+  overflow: visible;
 }
 
-.back-heading {
-  font-family: 'Courier Prime', monospace;
-  font-size: clamp(9px, 1.4vw, 12px);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-soft-on-texture);
+.back-flower:empty {
+  display: none;
+}
+
+.flower-svg {
+  height: clamp(40px, 17.2vw, 118px);
+  width: auto;
+  display: block;
+  transform: rotate(-8deg);
+  transform-origin: bottom center;
 }
 
 .stamp-guide {
   position: absolute;
-  top: 14%;
-  right: 4%;
-  width: 33%;
-  max-width: 122px;
+  top: 9%;
+  right: 1.8%;
+  width: 12.5%;
+  max-width: 102px;
+  z-index: 2;
   aspect-ratio: 4 / 5;
   border: 1px dashed #8A6F4A;
   border-radius: 2px;
@@ -363,61 +463,63 @@ a {
 
 .back-stamp {
   position: absolute;
-  top: 16%;
-  right: 5%;
-  width: 30%;
-  max-width: 110px;
+  top: 10.5%;
+  right: 2.4%;
+  width: 11%;
+  max-width: 92px;
+  z-index: 2;
 }
 
-.back-stamp svg {
+.back-stamp .stamp {
   width: 100%;
-  height: auto;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
 }
 
-.stamp-place {
-  font-family: 'Courier Prime', monospace;
-  font-size: 5px;
-  letter-spacing: 0.08em;
-  fill: var(--ink-soft);
+/* Stamp component (v1.6 §4) — HTML/img based, used in the compose rack, card back, and zoom
+   overlay. White paper base + 7% inset margin; perforation cut via a shared SVG mask so the
+   punched-edge geometry scales identically at every rendered size. */
+.stamp {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: #FFFDF6;
+  border-radius: 1px;
+  -webkit-mask-image: var(--stamp-perf-mask);
+  mask-image: var(--stamp-perf-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
-.stamp-corner {
-  font-family: 'Courier Prime', monospace;
-  font-size: 5px;
-  fill: var(--ink-soft);
+.stamp__art {
+  position: absolute;
+  inset: 7%;
+  width: 86%;
+  height: 86%;
+  object-fit: cover;
+  display: block;
+}
+
+.stamp__perf {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .back-postmark {
   position: absolute;
-  top: 31%;
-  right: 1%;
-  width: 50%;
-  max-width: 185px;
+  top: 17%;
+  right: 0.7%;
+  width: 19%;
+  max-width: 156px;
+  z-index: 2;
 }
 
 .back-postmark svg {
   width: 100%;
   height: auto;
   display: block;
-}
-
-/* Journaling ephemera cluster — fixed, below the stamp/postmark, clear of the tap target (v1.5b §5) */
-.back-ephemera {
-  position: absolute;
-  bottom: 1%;
-  right: 3%;
-  width: 30%;
-  max-width: 100px;
-  pointer-events: none;
-}
-
-.back-ephemera-svg {
-  width: 100%;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgb(90 70 40 / 0.2));
 }
 
 .postmark-arc-text,

@@ -1,5 +1,6 @@
 import zlib from 'node:zlib';
 import * as ed from '@noble/ed25519';
+import { FRONT_ID_RE } from '../js/fronts.js';
 
 // Best-effort in-memory rate limit: resets on cold start — accepted for MVP.
 const rateLimitMap = new Map();
@@ -45,6 +46,12 @@ function validate(body) {
   const stampVariant = body.stampVariant === undefined ? 0 : Number(body.stampVariant);
   if (!Number.isInteger(stampVariant) || stampVariant < 0 || stampVariant > 2) return { error: 'stampVariant' };
 
+  const flower = body.flower === undefined ? 0 : Number(body.flower);
+  if (!Number.isInteger(flower) || flower < 0 || flower > 4) return { error: 'flower' };
+
+  const front = typeof body.front === 'string' ? body.front : '';
+  if (front && (front.length > 16 || !FRONT_ID_RE.test(front))) return { error: 'front' };
+
   const lat = Number(body.lat);
   const lng = Number(body.lng);
   if (!Number.isFinite(lat) || lat < -90 || lat > 90) return { error: 'lat' };
@@ -52,7 +59,7 @@ function validate(body) {
 
   const website = typeof body.website === 'string' ? body.website : '';
 
-  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, lat, lng, website };
+  return { message, senderName, title: titleRaw, recipientName: recipientNameRaw, ink, stampVariant, flower, front, lat, lng, website };
 }
 
 async function fetchWithTimeout(url, options, timeoutMs) {
@@ -116,59 +123,6 @@ function formatInTimezone(ms, timezone) {
   return { d: `${map.year}-${map.month}-${map.day}`, t: `${hour}:${map.minute}` };
 }
 
-// Pure exported function per spec §5.5.
-export function computeArrival(nowMs, timezone) {
-  if (process.env.DEV_FAST_DELIVERY === '1') {
-    return nowMs + 2 * 60 * 1000;
-  }
-
-  const offsets = [3, 4, 5];
-  const offset = offsets[Math.floor(Math.random() * offsets.length)];
-
-  const nowParts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit',
-  }).formatToParts(new Date(nowMs));
-  const map = {};
-  for (const p of nowParts) map[p.type] = p.value;
-
-  // Build a UTC-based date for the local calendar day, then step forward by `offset` days.
-  let candidate = new Date(Date.UTC(Number(map.year), Number(map.month) - 1, Number(map.day) + offset));
-
-  const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'long' }).format(candidate);
-  if (weekday === 'Sunday') {
-    candidate = new Date(Date.UTC(candidate.getUTCFullYear(), candidate.getUTCMonth(), candidate.getUTCDate() + 1));
-  }
-
-  // Now resolve 08:00 in `timezone` on that calendar day back to a UTC epoch ms.
-  const y = candidate.getUTCFullYear();
-  const m = candidate.getUTCMonth() + 1;
-  const day = candidate.getUTCDate();
-
-  return resolveLocalTimeToUTC(y, m, day, 8, 0, timezone);
-}
-
-// Finds the UTC epoch ms corresponding to a given local wall-clock time in `timezone`.
-function resolveLocalTimeToUTC(year, month, day, hour, minute, timezone) {
-  const guess = Date.UTC(year, month - 1, day, hour, minute);
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
-  }).formatToParts(new Date(guess));
-  const map = {};
-  for (const p of parts) map[p.type] = p.value;
-  const hourVal = map.hour === '24' ? 0 : Number(map.hour);
-  const observed = Date.UTC(Number(map.year), Number(map.month) - 1, Number(map.day), hourVal, Number(map.minute));
-  const diff = guess - observed;
-  return guess + diff;
-}
-
-function formatArrivalDisplay(nb, timezone) {
-  const weekday = new Intl.DateTimeFormat('en-US', { timeZone: timezone, weekday: 'long' }).format(new Date(nb));
-  const month = new Intl.DateTimeFormat('en-US', { timeZone: timezone, month: 'long' }).format(new Date(nb));
-  const day = new Intl.DateTimeFormat('en-US', { timeZone: timezone, day: 'numeric' }).format(new Date(nb));
-  return { arrivalWeekday: weekday, arrivalDate: `${month} ${day}` };
-}
-
 function base64url(buf) {
   return Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -206,15 +160,13 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { message, senderName, title, recipientName, ink, stampVariant, lat, lng } = validated;
+  const { message, senderName, title, recipientName, ink, stampVariant, flower, front, lat, lng } = validated;
   const nowMs = Date.now();
 
   const [{ pl, co }, weather] = await Promise.all([
     geocode(lat, lng),
     weatherAndTime(lat, lng, nowMs),
   ]);
-
-  const nb = computeArrival(nowMs, weather.timezone);
 
   const payload = {
     v: 1,
@@ -226,12 +178,13 @@ export default async function handler(req, res) {
     co,
     d: weather.d,
     t: weather.t,
-    nb,
   };
   if (title) payload.ti = title;
   if (recipientName) payload.to = recipientName;
   if (ink) payload.ink = ink;
   if (stampVariant) payload.sv = stampVariant;
+  if (flower) payload.fl = flower;
+  if (front) payload.fr = front;
   if (weather.wt !== undefined) {
     payload.wt = weather.wt;
     payload.wc = weather.wc;
@@ -256,15 +209,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { arrivalWeekday, arrivalDate } = formatArrivalDisplay(nb, weather.timezone);
-
   res.status(200).json({
     ok: true,
     cardUrl,
     place: pl,
     country: co,
-    arrival: nb,
-    arrivalWeekday,
-    arrivalDate,
   });
 }

@@ -1,14 +1,14 @@
 // Single renderer for the card DOM (front + back). Used by compose preview, dev.html, and card.html.
 // All user/derived strings are inserted via textContent only — never innerHTML.
-import { renderStampSVG, renderFrontSVG } from './stamp.js';
+import { buildStampElement } from './stamp.js';
 import { renderPostmarkSVG } from './postmark.js';
+import { renderFlowerSVG } from './flower.js';
+import { FRONT_ID_RE } from './fronts.js';
+import { STADIA_API_KEY } from './config.js';
 
 // Index 0/1 (sepia, blue-black) are back-compat only — no longer offered in the compose ink tray.
-// Index 2/3 (green, red) are the current tray; red is darkened from #8C3B2E to pass 4.5:1 on the
-// v1.5a card texture (#D9C193 midtone).
-export const INK_COLORS = ['#3A3128', '#2A3550', '#2F4A38', '#7E3529'];
-
-const SVG_NS = 'http://www.w3.org/2000/svg';
+// Index 2/3 (green, red) are the current tray (v1.7 §1 paper — both verified ≥4.5:1).
+export const INK_COLORS = ['#3A3128', '#2A3550', '#2F4A38', '#8C3B2E'];
 
 function h(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
@@ -18,64 +18,6 @@ function h(tag, attrs = {}, children = []) {
   }
   for (const c of children) node.appendChild(c);
   return node;
-}
-
-function svgEl(tag, attrs = {}, children = []) {
-  const node = document.createElementNS(SVG_NS, tag);
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
-  for (const c of children) node.appendChild(c);
-  return node;
-}
-
-// Fixed scrapbook cluster for the card back's lower-right, unrelated to payload — same on every
-// card (v1.5b §5). Greeked text only: wavy placeholder lines, no legible words or letters.
-function tulipBloom(cx, cy, color) {
-  return svgEl('g', {}, [
-    svgEl('path', { d: `M${cx - 4},${cy + 6} Q${cx - 6},${cy - 4} ${cx},${cy - 8} Q${cx - 2},${cy - 2} ${cx - 4},${cy + 6} Z`, fill: color }),
-    svgEl('path', { d: `M${cx},${cy + 6} Q${cx - 2},${cy - 6} ${cx},${cy - 10} Q${cx + 2},${cy - 6} ${cx},${cy + 6} Z`, fill: color }),
-    svgEl('path', { d: `M${cx + 4},${cy + 6} Q${cx + 6},${cy - 4} ${cx},${cy - 8} Q${cx + 2},${cy - 2} ${cx + 4},${cy + 6} Z`, fill: color }),
-  ]);
-}
-
-function buildEphemeraCluster() {
-  const svg = svgEl('svg', { viewBox: '0 0 150 110', class: 'back-ephemera-svg', 'aria-hidden': 'true' });
-
-  const scrapGroup = svgEl('g', { transform: 'rotate(-4 78 62)' });
-  const tornPath = 'M18,26 L46,22 L74,25 L102,20 L124,24 L136,32 L134,60 L138,78 L128,96 L100,100 L70,97 L42,101 L20,94 L14,68 L20,48 Z';
-  scrapGroup.appendChild(svgEl('path', { d: tornPath, fill: '#F3ECDA', opacity: 0.9 }));
-
-  const lineYs = [38, 46, 54, 62, 70, 78, 86];
-  const lineWidths = [70, 64, 72, 58, 66, 50, 60];
-  lineYs.forEach((y, i) => {
-    const w = lineWidths[i];
-    scrapGroup.appendChild(svgEl('path', {
-      d: `M26,${y} q${w * 0.25},-3 ${w * 0.5},0 t${w * 0.5},0`,
-      fill: 'none', stroke: '#B9A990', 'stroke-width': 2, 'stroke-linecap': 'round', opacity: 0.55,
-    }));
-  });
-  scrapGroup.appendChild(svgEl('path', { d: 'M40,34 L116,34', stroke: '#8A7B66', 'stroke-width': 1, opacity: 0.5 }));
-  scrapGroup.appendChild(svgEl('circle', { cx: 78, cy: 34, r: 2, fill: '#8A7B66', opacity: 0.5 }));
-  svg.appendChild(scrapGroup);
-
-  const sprig = svgEl('g', { transform: 'translate(110,8) rotate(6)' });
-  sprig.appendChild(svgEl('path', { d: 'M4,40 Q2,20 10,4', stroke: '#6B7042', 'stroke-width': 1.6, fill: 'none' }));
-  sprig.appendChild(svgEl('path', { d: 'M18,34 Q20,18 14,6', stroke: '#6B7042', 'stroke-width': 1.4, fill: 'none' }));
-  sprig.appendChild(svgEl('path', { d: 'M6,26 Q-2,22 -6,28 Q0,30 6,26 Z', fill: '#6B7042' }));
-  sprig.appendChild(svgEl('path', { d: 'M16,22 Q24,18 26,24 Q18,26 16,22 Z', fill: '#6B7042' }));
-  sprig.appendChild(tulipBloom(10, 4, '#B85C4A'));
-  sprig.appendChild(tulipBloom(20, 10, '#E8A7B0'));
-  svg.appendChild(sprig);
-
-  const gingham = svgEl('g', { transform: 'translate(24,90) rotate(8)' });
-  gingham.appendChild(svgEl('rect', { x: 0, y: 0, width: 22, height: 22, fill: '#F3ECDA' }));
-  for (let i = 0; i < 22; i += 5) {
-    gingham.appendChild(svgEl('rect', { x: i, y: 0, width: 2.5, height: 22, fill: '#8FAFD1', opacity: 0.5 }));
-    gingham.appendChild(svgEl('rect', { x: 0, y: i, width: 22, height: 2.5, fill: '#8FAFD1', opacity: 0.5 }));
-  }
-  gingham.appendChild(svgEl('rect', { x: 0, y: 0, width: 22, height: 22, fill: 'none', stroke: '#8FAFD1', 'stroke-width': 0.6, opacity: 0.6 }));
-  svg.appendChild(gingham);
-
-  return svg;
 }
 
 function text(tag, className, str) {
@@ -91,10 +33,66 @@ function formatCoords(lat, lng) {
   return `${latStr}, ${lngStr}`;
 }
 
+const MAP_ATTRIBUTION = '© Stadia Maps © Stamen Design © OpenStreetMap';
+
+function stadiaMapUrl(lat, lng) {
+  return `https://tiles.stadiamaps.com/static/stamen_watercolor.jpg?center=${lat},${lng}&zoom=14&size=1200x800@2x&api_key=${STADIA_API_KEY}`;
+}
+
+function buildMapRing() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('class', 'front-map-ring');
+  svg.setAttribute('aria-hidden', 'true');
+  const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  ring.setAttribute('cx', '50');
+  ring.setAttribute('cy', '50');
+  ring.setAttribute('r', '14');
+  ring.setAttribute('fill', 'none');
+  ring.setAttribute('stroke', '#B85C4A');
+  ring.setAttribute('stroke-width', '2.4');
+  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dot.setAttribute('cx', '50');
+  dot.setAttribute('cy', '50');
+  dot.setAttribute('r', '2.4');
+  dot.setAttribute('fill', '#B85C4A');
+  svg.appendChild(ring);
+  svg.appendChild(dot);
+  return svg;
+}
+
+// Card front (v1.9 §4): a vintage watercolor map centered on the postmark's coordinates,
+// replacing the interim curated-artwork tray. A curated `fr` (v1.8 §1, no longer offered in
+// compose but still honored so old cards keep rendering their chosen front) takes priority when
+// present. Missing API key or a failed image load falls back to the paper texture + lockup alone.
 function buildFront(payload) {
   const front = h('div', { className: 'postcard-face postcard-front' });
-  front.appendChild(renderFrontSVG(payload));
+  const hasCuratedFront = payload.fr && FRONT_ID_RE.test(payload.fr);
+
+  // Bottom of the stack: curated artwork (dormant path, v1.8 §1) or the watercolor map.
+  if (hasCuratedFront) {
+    const img = h('img', { className: 'front-art', alt: '' });
+    img.addEventListener('error', () => img.remove());
+    img.src = `/assets/fronts/${payload.fr}.jpg`;
+    front.appendChild(img);
+  } else if (STADIA_API_KEY) {
+    const img = h('img', { className: 'front-art front-map', alt: '' });
+    img.src = stadiaMapUrl(payload.lat, payload.lng);
+    front.appendChild(img);
+  }
+
+  // Paper multiply overlay, unchanged.
   front.appendChild(h('div', { className: 'front-texture-overlay' }));
+
+  // "You are here" ring, above the overlay — only for the map path.
+  let mapImg = null;
+  let mapRing = null;
+  let mapAttribution = null;
+  if (!hasCuratedFront && STADIA_API_KEY) {
+    mapImg = front.querySelector('.front-map');
+    mapRing = buildMapRing();
+    front.appendChild(mapRing);
+  }
 
   const lockup = h('div', { className: 'front-lockup' });
   const headline = payload.ti || payload.pl || '';
@@ -103,18 +101,87 @@ function buildFront(payload) {
   lockup.appendChild(text('div', 'front-coords', `${co}${formatCoords(payload.lat, payload.lng)}`));
   front.appendChild(lockup);
 
+  // Attribution line, topmost — required by the map tile license.
+  if (mapImg) {
+    mapAttribution = text('div', 'front-attribution', MAP_ATTRIBUTION);
+    front.appendChild(mapAttribution);
+    const ring = mapRing;
+    const attribution = mapAttribution;
+    mapImg.addEventListener('error', () => {
+      mapImg.remove();
+      ring.remove();
+      attribution.remove();
+    });
+    mapImg.addEventListener('load', () => mapImg.classList.add('is-loaded'));
+  }
+
   return front;
 }
 
+// Ruled writing grid (v1.8a §1/§2) — one shared pitch, drawn as a single background on the
+// container. Row heights beyond the two fixed rows (To, From) are computed here in px, since
+// --rule-pitch is a fixed px value rather than a % of the responsive card.
+const RULE_PITCH = 34;
+
+// v1.9 §1 — the message box must never show its own scrollbar. It grows unconditionally by
+// whole --rule-pitch rows to fit its content (bounded only by the 300-char maxlength); the
+// postcard itself grows past its default 3:2 aspect ratio when the writing area needs more
+// room than that gives it, rather than capping/scrolling the text.
+export function relayoutWriting(back) {
+  const writing = back.querySelector('.back-writing');
+  const messageEl = back.querySelector('.back-message, .back-message-input');
+  if (!writing || !messageEl) return;
+
+  messageEl.style.height = `${RULE_PITCH}px`;
+  const contentRows = Math.max(1, Math.ceil(messageEl.scrollHeight / RULE_PITCH));
+  messageEl.style.height = `${contentRows * RULE_PITCH}px`;
+  messageEl.style.overflowY = 'hidden';
+
+  const postcard = back.closest('.postcard');
+  if (!postcard) return;
+
+  postcard.style.height = '';
+  const naturalHeight = postcard.getBoundingClientRect().height;
+  if (!naturalHeight) return;
+  const cardRect = back.getBoundingClientRect();
+  const writingTop = writing.getBoundingClientRect().top - cardRect.top;
+  const bottomMargin = naturalHeight * 0.04; // matches the container's 4% side margins
+  const requiredHeight = writingTop + writing.scrollHeight + bottomMargin;
+  if (requiredHeight > naturalHeight) {
+    postcard.style.height = `${requiredHeight}px`;
+  }
+}
+
+// Card back v2 (v1.7 §4, ruled grid rebuilt in v1.8a §1/§2) — single full-width writing field,
+// no divided columns.
 function buildBack(payload, options = {}) {
   const { editable = false, onMessageInput, onSignatureInput, onToInput } = options;
   const back = h('div', { className: 'postcard-face postcard-back' });
   const ink = INK_COLORS[payload.ink || 0];
 
-  const left = h('div', { className: 'back-left' });
+  back.appendChild(text('div', 'back-heading', 'Postcard'));
+  back.appendChild(h('div', { className: 'back-heading-flourish', 'aria-hidden': 'true' }));
 
+  const stampGuide = h('div', { className: 'stamp-guide' });
+  stampGuide.appendChild(text('div', 'stamp-guide-label', 'AFFIX STAMP'));
+  back.appendChild(stampGuide);
+
+  const stampWrap = h('div', { className: 'back-stamp' });
+  stampWrap.appendChild(buildStampElement(payload));
+  back.appendChild(stampWrap);
+
+  if (payload.d && payload.t) {
+    const postmarkWrap = h('div', { className: 'back-postmark' });
+    postmarkWrap.appendChild(renderPostmarkSVG(payload));
+    back.appendChild(postmarkWrap);
+  }
+
+  // Writing grid: row 1 = To, row 2..N-1 = message, row N = From — always all three rows so the
+  // grid math never depends on whether a recipient name is present.
+  const writing = h('div', { className: 'back-writing' });
+
+  const toLine = h('div', { className: 'back-to-line' });
   if (editable || payload.to) {
-    const toLine = h('div', { className: 'back-to-line' });
     toLine.appendChild(text('span', 'back-line-label', 'To'));
     if (editable) {
       const toInput = h('input', { className: 'back-to-input', type: 'text', maxlength: '30', placeholder: 'Their name' });
@@ -127,22 +194,34 @@ function buildBack(payload, options = {}) {
       toName.style.color = ink;
       toLine.appendChild(toName);
     }
-    left.appendChild(toLine);
   }
+  writing.appendChild(toLine);
 
+  let messageEl;
   if (editable) {
-    const textarea = h('textarea', { className: 'back-message-input', maxlength: '300', placeholder: 'Write your message…' });
-    textarea.value = payload.m || '';
-    textarea.style.color = ink;
-    if (onMessageInput) textarea.addEventListener('input', () => onMessageInput(textarea.value));
-    left.appendChild(textarea);
-  } else {
-    const messageEl = text('div', 'back-message', payload.m || '');
+    messageEl = h('textarea', { className: 'back-message-input', maxlength: '300', placeholder: 'Write your message…' });
+    messageEl.value = payload.m || '';
     messageEl.style.color = ink;
-    left.appendChild(messageEl);
+    messageEl.addEventListener('input', () => {
+      if (onMessageInput) onMessageInput(messageEl.value);
+      relayoutWriting(back);
+    });
+  } else {
+    messageEl = text('div', 'back-message', payload.m || '');
+    messageEl.style.color = ink;
   }
+  writing.appendChild(messageEl);
+
+  // Collapses to 0 height (CSS) unless a flower is selected, in which case it opens up a full
+  // pitch row so the charm's upward overflow (v1.8 §6) has real clearance instead of running
+  // into the message's last line.
+  writing.appendChild(h('div', { className: 'back-flower-spacer', 'aria-hidden': 'true' }));
 
   const fromLine = h('div', { className: 'back-signature-line' });
+  const flowerWrap = h('div', { className: 'back-flower' });
+  const flowerSvg = renderFlowerSVG(payload.fl);
+  if (flowerSvg) flowerWrap.appendChild(flowerSvg);
+  fromLine.appendChild(flowerWrap);
   fromLine.appendChild(text('span', 'back-line-label', 'From'));
   if (editable) {
     const sigInput = h('input', { className: 'back-signature-input', type: 'text', maxlength: '40', placeholder: 'Your name' });
@@ -155,32 +234,9 @@ function buildBack(payload, options = {}) {
     sigEl.style.color = ink;
     fromLine.appendChild(sigEl);
   }
-  left.appendChild(fromLine);
+  writing.appendChild(fromLine);
 
-  back.appendChild(left);
-
-  back.appendChild(h('div', { className: 'back-rule' }));
-
-  const right = h('div', { className: 'back-right' });
-  right.appendChild(text('div', 'back-heading', 'POST CARD / CARTE POSTALE'));
-
-  const stampGuide = h('div', { className: 'stamp-guide' });
-  stampGuide.appendChild(text('div', 'stamp-guide-label', 'AFFIX STAMP'));
-  right.appendChild(stampGuide);
-
-  const stampWrap = h('div', { className: 'back-stamp' });
-  stampWrap.appendChild(renderStampSVG(payload));
-  right.appendChild(stampWrap);
-
-  if (payload.d && payload.t) {
-    const postmarkWrap = h('div', { className: 'back-postmark' });
-    postmarkWrap.appendChild(renderPostmarkSVG(payload));
-    right.appendChild(postmarkWrap);
-  }
-
-  const ephemeraWrap = h('div', { className: 'back-ephemera' });
-  ephemeraWrap.appendChild(buildEphemeraCluster());
-  right.appendChild(ephemeraWrap);
+  back.appendChild(writing);
 
   if (!editable) {
     const hit = h('div', {
@@ -189,10 +245,12 @@ function buildBack(payload, options = {}) {
       tabindex: '0',
       'aria-label': 'Inspect the stamp and postmark',
     });
-    right.appendChild(hit);
+    back.appendChild(hit);
   }
 
-  back.appendChild(right);
+  const ro = new ResizeObserver(() => relayoutWriting(back));
+  ro.observe(back);
+
   return back;
 }
 

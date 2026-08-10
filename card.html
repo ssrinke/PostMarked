@@ -8,13 +8,17 @@
 
 <meta property="og:title" content="You've got a postcard" />
 <meta property="og:description" content="Someone mailed you a postcard from somewhere real." />
-<meta property="og:image" content="/og.png" />
+<!-- TODO(v1.8 §3): replace with the real production domain (from APP_BASE_URL) before deploying. -->
+<meta property="og:image" content="https://YOUR-PRODUCTION-DOMAIN/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,900;1,600&family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
-<link rel="preload" as="image" href="/assets/paper-card.jpg">
+<link rel="preload" as="image" href="/assets/paper-card-v2.jpg">
 <link rel="stylesheet" href="/css/shared.css" />
 <link rel="stylesheet" href="/css/card.css" />
 </head>
@@ -27,15 +31,6 @@
       <div class="damaged-headline">This one got damaged in the mail.</div>
       <div class="damaged-body">The postcard in this link isn't intact, so it can't be shown. Ask the sender for a fresh link.</div>
     </div>
-  </div>
-
-  <div class="state" id="state-transit">
-    <div class="transit-envelope">
-      <div class="envelope-texture" aria-hidden="true"></div>
-      <div class="transit-label">POST CARD</div>
-      <div class="transit-postmark-ghost"></div>
-    </div>
-    <div class="transit-line"></div>
   </div>
 
   <div class="state" id="state-arrival">
@@ -53,9 +48,10 @@
           </div>
         </div>
       </div>
+      <p class="stamp-hint-caption" id="stampHintCaption">tap the stamp</p>
     </div>
     <button type="button" class="break-seal-button">Break the seal</button>
-    <p class="stamp-hint-caption" id="stampHintCaption">tap the stamp</p>
+    <p class="arrival-meta" id="arrivalMeta"></p>
     <div class="card-footer">
       Mailed with Postmarked — <a href="/">send one back from wherever you are.</a>
     </div>

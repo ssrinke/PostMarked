@@ -1,5 +1,6 @@
-import { buildCardElement, INK_COLORS } from './render-card.js';
-import { renderStampSVG } from './stamp.js';
+import { buildCardElement, INK_COLORS, relayoutWriting } from './render-card.js';
+import { buildStampElement } from './stamp.js';
+import { renderFlowerSVG, renderFlowerNoneIcon } from './flower.js';
 
 const screens = {
   arrival: document.getElementById('screen-arrival'),
@@ -14,7 +15,7 @@ const SENT_KEY = 'postmarked.sent.v1';
 const POSITION_MAX_AGE_MS = 5 * 60 * 1000;
 
 let position = null; // { lat, lng, timestamp }
-let draft = { m: '', s: '', to: '', ink: 2, sv: 0 };
+let draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0, fr: '' };
 let cardPreview = null; // { card, front, back }
 
 // Compose ink tray offers only green (index 2) and red (index 3) into INK_COLORS;
@@ -166,7 +167,7 @@ function buildStampRack() {
     item.setAttribute('aria-checked', String(sv === draft.sv));
     item.setAttribute('aria-label', `Stamp variant ${sv + 1}`);
     item.tabIndex = sv === draft.sv ? 0 : -1;
-    item.appendChild(renderStampSVG(payload, sv));
+    item.appendChild(buildStampElement(payload, sv));
     item.addEventListener('click', () => selectStamp(sv));
     item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.stamp-rack-item', sv, selectStamp));
     container.appendChild(item);
@@ -185,25 +186,83 @@ function applyStampToPreview() {
   const wrap = cardPreview.back.querySelector('.back-stamp');
   if (!wrap) return;
   wrap.innerHTML = '';
-  wrap.appendChild(renderStampSVG({ lat: position.lat, lng: position.lng }, draft.sv));
+  wrap.appendChild(buildStampElement({ lat: position.lat, lng: position.lng }, draft.sv));
+}
+
+// --- Pressed-flower tray (v1.7 §5) ---
+
+function buildFlowerTray() {
+  const container = document.getElementById('flowerTrayItems');
+  container.innerHTML = '';
+  for (let fl = 0; fl <= 4; fl++) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'flower-tray-item';
+    item.setAttribute('role', 'radio');
+    item.setAttribute('aria-checked', String(fl === draft.fl));
+    item.setAttribute('aria-label', fl === 0 ? 'No pressed flower' : `Pressed flower ${fl}`);
+    item.tabIndex = fl === draft.fl ? 0 : -1;
+    item.appendChild(fl === 0 ? renderFlowerNoneIcon() : renderFlowerSVG(fl));
+    item.addEventListener('click', () => selectFlower(fl));
+    item.addEventListener('keydown', (e) => handleTrayArrowKey(e, container, '.flower-tray-item', fl, selectFlower));
+    container.appendChild(item);
+  }
+}
+
+function selectFlower(fl) {
+  draft.fl = fl;
+  buildFlowerTray();
+  document.getElementById('flowerTrayItems').querySelectorAll('.flower-tray-item')[fl]?.focus();
+  applyFlowerToPreview();
+}
+
+function applyFlowerToPreview() {
+  if (!cardPreview) return;
+  const wrap = cardPreview.back.querySelector('.back-flower');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const svg = renderFlowerSVG(draft.fl);
+  if (svg) wrap.appendChild(svg);
+  relayoutWriting(cardPreview.back);
 }
 
 // --- Write screen ---
 
+// v1.8 §5: on short mobile viewports, shrink the card preview (never below 80vw) rather than let
+// the compose flow spill into a vertical scroll.
+function fitCardPreview() {
+  const preview = document.getElementById('writeCardPreview');
+  if (!preview || !screens.write.classList.contains('is-active')) return;
+  preview.style.width = '';
+  requestAnimationFrame(() => {
+    let vw = 92;
+    while (document.documentElement.scrollHeight > window.innerHeight && vw > 80) {
+      vw -= 2;
+      preview.style.width = `${vw}vw`;
+    }
+  });
+}
+
+window.addEventListener('resize', fitCardPreview);
+
 function enterWriteScreen() {
   showScreen('write');
-  draft = { m: '', s: '', to: '', ink: 2, sv: 0 };
+  // No curated `fr` is set from compose (v1.9 §4) — the front renders the watercolor map. The
+  // field stays in the payload/draft shape since old cards and dev.html still use it.
+  draft = { m: '', s: '', to: '', ink: 2, sv: 0, fl: 0, fr: '' };
   buildInkTray();
   buildStampRack();
+  buildFlowerTray();
   renderCardPreview();
   updateCounter();
   updateApproxCaption();
+  fitCardPreview();
 }
 
 function renderCardPreview() {
   const container = document.getElementById('writeCardPreview');
   container.innerHTML = '';
-  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, lat: position.lat, lng: position.lng };
+  const payload = { v: 1, m: draft.m, s: draft.s, to: draft.to, ink: draft.ink, sv: draft.sv, fl: draft.fl, fr: draft.fr, lat: position.lat, lng: position.lng };
   cardPreview = buildCardElement(payload, {
     editable: true,
     onMessageInput: (value) => {
@@ -246,6 +305,8 @@ async function mailIt() {
         recipientName: draft.to,
         ink: draft.ink,
         stampVariant: draft.sv,
+        flower: draft.fl,
+        front: draft.fr,
         lat: position.lat,
         lng: position.lng,
         website: '',
@@ -263,7 +324,6 @@ async function mailIt() {
       place: data.place,
       country: data.country,
       mailedDate: new Date().toISOString(),
-      arrival: data.arrival,
     });
     refreshDrawerLinks();
 
@@ -289,32 +349,33 @@ let lastMailed = null;
 function enterConfirmScreen(data) {
   lastMailed = data;
   document.getElementById('confirmHeadline').textContent = `Stamped and sealed in ${data.place}.`;
-  document.getElementById('stepOpens').textContent = `3 · OPENS ${data.arrivalWeekday.toUpperCase()}`;
   const recipient = draft.to || 'them';
   document.getElementById('stepExplainer').textContent =
-    `You're the postman now. Send ${recipient} the sealed envelope — it's a link, and it cannot be opened before ${data.arrivalWeekday}.`;
+    `You're the postman now. Send ${recipient} the sealed envelope — it's a link they can open right away.`;
 
   const handItBtn = document.getElementById('handItBtn');
-  setupHandItButton(handItBtn, data.place, data.arrivalWeekday, data.cardUrl);
+  setupHandItButton(handItBtn, data.place, data.cardUrl);
 
   showScreen('confirm');
 }
 
-function shareTextFor(place, weekday, cardUrl) {
-  return `I mailed you a postcard from ${place} 📮 It arrives ${weekday} — go look then. ${cardUrl}`;
+// v1.8 §3: url stays in its own share-data field, never concatenated into text, so messengers
+// (WhatsApp, Instagram, …) unfurl the link into a real preview card instead of a bare string.
+function shareTextFor(place) {
+  return `I mailed you a postcard from ${place} 📮`;
 }
 
-function setupHandItButton(button, place, weekday, cardUrl) {
-  const shareText = shareTextFor(place, weekday, cardUrl);
+function setupHandItButton(button, place, cardUrl) {
+  const text = shareTextFor(place);
   button.onclick = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ text: shareText });
+        await navigator.share({ text, url: cardUrl });
       } catch {
         // user cancelled share sheet — no-op
       }
     } else {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(`${text}\n${cardUrl}`);
       showToast('Copied — now send it to them yourself');
     }
   };
@@ -355,17 +416,16 @@ function renderDrawer() {
     again.type = 'button';
     again.className = 'primary-button';
     again.textContent = 'Hand it over again';
-    const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date(entry.arrival));
     again.addEventListener('click', async () => {
-      const shareText = shareTextFor(entry.place, weekday, entry.cardUrl);
+      const text = shareTextFor(entry.place);
       if (navigator.share) {
         try {
-          await navigator.share({ text: shareText });
+          await navigator.share({ text, url: entry.cardUrl });
         } catch {
           // cancelled
         }
       } else {
-        await navigator.clipboard.writeText(shareText);
+        await navigator.clipboard.writeText(`${text}\n${entry.cardUrl}`);
         showToast('Copied — now send it to them yourself');
       }
     });

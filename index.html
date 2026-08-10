@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="Mail a postcard from exactly where you're standing — location-locked, time-delayed, delivered by you." />
+<meta name="description" content="Mail a postcard from exactly where you're standing — location-locked, delivered by you." />
 <title>Postmarked</title>
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,900;1,600&family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
-<link rel="preload" as="image" href="/assets/paper-card.jpg">
+<link rel="preload" as="image" href="/assets/paper-card-v2.jpg">
 <link rel="stylesheet" href="/css/shared.css" />
 <link rel="stylesheet" href="/css/compose.css" />
 </head>
@@ -20,7 +20,7 @@
 
   <section class="screen is-active" id="screen-arrival">
     <h1 class="headline">Mail a postcard from exactly where you're standing.</h1>
-    <p class="subline">No account. No app for them. It arrives in a few days, postmarked with this place, this weather, this moment.</p>
+    <p class="subline">No account. No app for them. Postmarked with this place, this weather, this moment — theirs to open the second you send it.</p>
     <button type="button" class="primary-button" id="findMeBtn">Find where I am</button>
     <button type="button" class="link-button" id="drawerLinkArrival" hidden>Your mailed cards</button>
   </section>
@@ -40,17 +40,20 @@
     <h1 class="write-heading">Write a postcard</h1>
     <div class="write-flourish" aria-hidden="true"></div>
 
-    <div class="ink-tray">
-      <div class="tray-label">Choose your ink</div>
+    <div class="tray-section">
+      <div class="tray-section-header">Choose your ink</div>
       <div class="ink-dots" id="inkDots" role="radiogroup" aria-label="Choose your ink"></div>
     </div>
 
-    <div class="stamp-rack">
-      <div class="tray-label">Choose your stamp</div>
+    <div class="tray-section">
+      <div class="tray-section-header">Choose your stamp</div>
       <div class="stamp-rack-items" id="stampRackItems" role="radiogroup" aria-label="Choose your stamp"></div>
     </div>
 
-    <div class="write-flourish" aria-hidden="true"></div>
+    <div class="tray-section">
+      <div class="tray-section-header">Add a pressed flower</div>
+      <div class="flower-tray-items" id="flowerTrayItems" role="radiogroup" aria-label="Add a pressed flower"></div>
+    </div>
 
     <div class="write-card-preview" id="writeCardPreview"></div>
     <div class="char-counter" id="charCounter">300 characters left</div>
@@ -69,7 +72,7 @@
         <p class="step-explainer" id="stepExplainer"></p>
       </div>
       <div class="postal-step is-upcoming">
-        <span class="step-text" id="stepOpens">3 · OPENS</span>
+        <span class="step-text" id="stepOpens">3 · THEY BREAK THE SEAL</span>
       </div>
     </div>
     <button type="button" class="primary-button" id="handItBtn">Hand it to them</button>

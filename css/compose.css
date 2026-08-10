@@ -20,11 +20,13 @@
   font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
   max-width: 20ch;
-  color: var(--ink);
+  color: var(--on-wood);
+  text-shadow: var(--on-wood-shadow);
 }
 
 .subline {
-  color: var(--ink);
+  color: var(--on-wood);
+  text-shadow: var(--on-wood-shadow);
   max-width: 46ch;
   font-size: 14px;
   line-height: 1.5;
@@ -33,7 +35,8 @@
 .approx-caption {
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   max-width: 40ch;
 }
 
@@ -67,7 +70,8 @@
 .link-button {
   background: none;
   border: none;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   text-decoration: underline;
   font-size: 13px;
   min-height: 44px;
@@ -122,17 +126,22 @@
 
 /* Write screen */
 
+/* Header→divider→first-tray spacing (v1.9 §5) is exact (6px/12px, 4px/10px mobile), not the
+   general --section-gap used between the rest of the write screen's stacked flex children — the
+   negative margin below cancels out the flex gap that #screen-write.is-active also applies here. */
 .write-heading {
   font-family: 'Fraunces', serif;
   font-weight: 900;
   font-size: clamp(22px, 4.5vw, 34px);
-  color: var(--ink);
+  color: var(--on-wood);
+  text-shadow: var(--on-wood-shadow);
+  margin-bottom: calc(6px - var(--section-gap));
 }
 
 .write-flourish {
   width: 60px;
   height: 10px;
-  margin: 6px auto 4px;
+  margin: 0 auto calc(12px - var(--section-gap));
   position: relative;
 }
 
@@ -143,7 +152,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: #A8946E;
+  background: rgb(235 223 201 / .85);
 }
 
 .write-flourish::after {
@@ -153,21 +162,27 @@
   left: 50%;
   width: 6px;
   height: 6px;
-  background: #A8946E;
+  background: rgb(235 223 201 / .85);
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.tray-label {
-  font-family: 'Courier Prime', monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-  margin-bottom: 14px;
-  text-align: center;
+/* Shared tray section component (v1.6 §5) — used by both the ink tray and the stamp rack so
+   they cannot diverge. */
+:root {
+  --section-gap: 28px;
 }
 
-.ink-tray {
+@media (max-width: 480px) {
+  :root {
+    --section-gap: 16px;
+  }
+}
+
+#screen-write.is-active {
+  gap: var(--section-gap);
+}
+
+.tray-section {
   width: 92vw;
   max-width: 630px;
   display: flex;
@@ -175,15 +190,57 @@
   align-items: center;
 }
 
-.ink-dots {
+.tray-section-header {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+/* Front artwork tray (v1.8 §1.3) */
+
+.front-tray-items {
   display: flex;
   justify-content: center;
   gap: 12px;
 }
 
+.front-tray-item {
+  width: 84px;
+  aspect-ratio: 3 / 2;
+  border: none;
+  border-radius: 3px;
+  padding: 0;
+  overflow: hidden;
+  transition: transform 150ms ease;
+}
+
+.front-tray-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.front-tray-item[aria-checked="true"] {
+  transform: translateY(-4px);
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
+.ink-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
 .ink-dot {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -194,8 +251,8 @@
 
 .ink-dot::before {
   content: '';
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--dot-color);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
@@ -206,35 +263,22 @@
   box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink), 0 1px 2px rgb(0 0 0 / 0.2);
 }
 
-.stamp-rack {
-  width: 92vw;
-  max-width: 630px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 8px;
-}
-
 .stamp-rack-items {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #B49A72;
+  gap: 20px;
 }
 
 .stamp-rack-item {
-  width: 72px;
+  width: 76px;
   border: none;
   background: none;
   padding: 0;
   transition: transform 150ms ease;
 }
 
-.stamp-rack-item svg {
+.stamp-rack-item .stamp {
   width: 100%;
-  height: auto;
-  display: block;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
@@ -242,9 +286,42 @@
   transform: translateY(-4px);
 }
 
-.stamp-rack-item[aria-checked="true"] svg {
+.stamp-rack-item[aria-checked="true"] .stamp {
   outline: 2px solid var(--seal);
   outline-offset: 2px;
+}
+
+/* Pressed-flower tray (v1.7 §5) */
+
+.flower-tray-items {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.flower-tray-item {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease;
+}
+
+.flower-tray-item .flower-svg {
+  height: 32px;
+  width: auto;
+  transform: none;
+}
+
+.flower-tray-item[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--seal);
+  transform: translateY(-2px);
 }
 
 .write-card-preview {
@@ -284,7 +361,7 @@
 
 .write-card-preview::before {
   top: -13px;
-  left: calc(62% - 45px);
+  left: calc(78% - 45px);
   transform: rotate(-3deg);
 }
 
@@ -298,7 +375,8 @@
   align-self: flex-end;
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--ink-soft);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   margin-top: 4px;
 }
 
@@ -413,7 +491,8 @@
 
 .drawer-caption {
   font-size: 12px;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   max-width: 40ch;
 }
 
@@ -452,12 +531,61 @@
 }
 
 .drawer-empty {
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   font-size: 13px;
 }
 
 @media (max-width: 360px) {
   .headline {
     font-size: 20px;
+  }
+}
+
+/* Mobile vertical fit (v1.8 §5) — compresses the compose flow so it fits a 412x915 (Pixel 6)
+   viewport with zero vertical scroll. Desktop is untouched; everything here is mobile-scoped. */
+@media (max-width: 480px) {
+  #screen-write {
+    padding-top: 12px;
+  }
+
+  .write-heading {
+    font-size: clamp(26px, 7vw, 40px);
+    margin-bottom: calc(4px - var(--section-gap));
+  }
+
+  .write-flourish {
+    margin: 0 auto calc(10px - var(--section-gap));
+  }
+
+  .tray-section-header {
+    margin-bottom: 10px;
+  }
+
+  .front-tray-item {
+    width: 72px;
+  }
+
+  .stamp-rack-item {
+    width: 64px;
+  }
+
+  .ink-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .ink-dot::before {
+    width: 19px;
+    height: 19px;
+  }
+
+  .flower-tray-item {
+    width: 28px;
+    height: 28px;
+  }
+
+  .flower-tray-item .flower-svg {
+    height: 20px;
   }
 }

@@ -1,4 +1,4 @@
-/* card.html — receiving page: damaged / in-transit / tear ritual / card states */
+/* card.html — receiving page: damaged / seal / tear ritual states */
 
 .stage {
   min-height: 100vh;
@@ -6,6 +6,13 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
+}
+
+@media (max-width: 480px) {
+  .stage {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
 }
 
 .state {
@@ -18,6 +25,51 @@
 
 .state.is-active {
   display: flex;
+}
+
+/* Seal page (arrival state) — strict centered column, footer pinned to the bottom (v1.6 §3) */
+#state-arrival.is-active {
+  align-self: stretch;
+  min-height: calc(100vh - 48px);
+  justify-content: flex-start;
+  gap: 0;
+}
+
+@media (max-width: 480px) {
+  #state-arrival.is-active {
+    min-height: calc(100vh - 32px);
+  }
+}
+
+#state-arrival .break-seal-button {
+  margin-top: 20px;
+}
+
+#state-arrival .arrival-meta {
+  margin-top: 12px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
+  text-align: center;
+  max-width: 90vw;
+}
+
+.stamp-hint-caption {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: 12px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+#state-arrival .card-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  padding-bottom: 28px;
 }
 
 /* Damaged state */
@@ -52,76 +104,36 @@
   max-width: 44ch;
 }
 
-/* In-transit state */
-
-.transit-envelope {
-  width: 92vw;
-  max-width: 480px;
-  aspect-ratio: 3 / 2;
-  background: var(--paper);
-  border-radius: 3px;
-  position: relative;
-  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.transit-envelope::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent 45%, rgba(0, 0, 0, 0.04) 50%, transparent 55%);
-}
-
 .envelope-texture {
   position: absolute;
   inset: 0;
-  background: url('/assets/paper-card.jpg') center / cover;
+  background: url('/assets/paper-card-v2.jpg') center / cover;
   mix-blend-mode: multiply;
   opacity: 0.5;
   pointer-events: none;
 }
 
-.transit-postmark-ghost {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 40%;
-  transform: translate(-50%, -50%);
-  opacity: 0.15;
-}
-
-.transit-postmark-ghost svg {
-  width: 100%;
-  height: auto;
-}
-
-.transit-label {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Courier Prime', monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink-soft);
-}
-
-.transit-line {
-  color: var(--ink);
-  text-align: center;
-  font-size: 14px;
-  max-width: 46ch;
-}
-
 /* Arrival + tear ritual v2 (§4) */
 
 .envelope-scene {
-  width: 92vw;
-  max-width: 560px;
-  aspect-ratio: 3 / 2;
+  width: min(88vw, 460px);
+  aspect-ratio: 1.45 / 1;
   position: relative;
+}
+
+/* Once the seal is broken, the scene drops its fixed envelope box and lets the (larger)
+   revealed postcard set its own in-flow size, so the meta line and footer below it keep the
+   same rhythm instead of being overlapped (v1.6 §3). */
+.envelope-scene.is-open {
+  width: 100%;
+  aspect-ratio: auto;
+}
+
+.envelope-scene.is-open .card-wrap {
+  position: static;
+  display: flex;
+  justify-content: center;
+  opacity: 1;
 }
 
 .envelope {
@@ -130,7 +142,7 @@
   z-index: 2;
   background: var(--paper);
   border-radius: 3px;
-  box-shadow: 0 18px 40px -12px rgb(90 70 40 / .35);
+  box-shadow: 0 22px 48px -12px rgb(30 18 8 / .55);
   touch-action: pan-y;
   overflow: hidden;
 }
@@ -160,14 +172,15 @@
 
 .envelope-to-name {
   position: absolute;
-  top: 30%;
+  top: 20%;
   left: 50%;
   transform: translateX(-50%);
   max-width: 80%;
   text-align: center;
   font-family: 'Caveat', cursive;
   font-weight: 700;
-  font-size: clamp(20px, 4vw, 32px);
+  font-size: clamp(26px, 7vw, 40px);
+  color: var(--ink);
 }
 
 .envelope-to-name:empty {
@@ -317,7 +330,8 @@
   text-align: center;
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
 }
 
 .card-footer a {
@@ -372,11 +386,11 @@
 
 .stamp-cluster-hit {
   position: absolute;
-  top: 14%;
-  right: 1%;
-  width: 60%;
-  height: 66%;
-  z-index: 2;
+  top: 7%;
+  right: 0.5%;
+  width: 24%;
+  height: 32%;
+  z-index: 3;
 }
 
 @keyframes stamp-pulse {
@@ -393,7 +407,8 @@
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
   text-transform: lowercase;
-  color: var(--ink-muted);
+  color: var(--on-wood-secondary);
+  text-shadow: var(--on-wood-shadow);
   opacity: 0;
   transition: opacity 300ms ease;
 }
@@ -450,17 +465,25 @@
   cursor: pointer;
 }
 
-.zoom-stamp-wrap,
 .zoom-postmark-wrap {
   width: 60%;
   max-width: 220px;
 }
 
-.zoom-stamp-wrap svg,
 .zoom-postmark-wrap svg {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* Stamp rendered at 2.5x the rack's 76px width (v1.6 §4/§5). */
+.zoom-stamp-wrap {
+  width: 190px;
+  max-width: 50vw;
+}
+
+.zoom-stamp-wrap .stamp {
+  width: 100%;
 }
 
 .zoom-caption-lines {
